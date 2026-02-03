@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using CvParser.Core.Interfaces;
 using CvParser.Core.Models;
 
@@ -8,7 +9,7 @@ namespace CvParser.Core.Services;
 /// </summary>
 public class InMemoryDocumentRepository : IDocumentRepository
 {
-    private readonly Dictionary<Guid, CvDocument> _documents = new();
+    private readonly ConcurrentDictionary<Guid, CvDocument> _documents = new();
     
     public Task<CvDocument> SaveAsync(CvDocument document)
     {
@@ -29,6 +30,6 @@ public class InMemoryDocumentRepository : IDocumentRepository
     
     public Task<bool> DeleteAsync(Guid id)
     {
-        return Task.FromResult(_documents.Remove(id));
+        return Task.FromResult(_documents.TryRemove(id, out _));
     }
 }

@@ -1,5 +1,6 @@
 using CvParser.Api.DTOs;
 using CvParser.Core.Interfaces;
+using CvParser.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CvParser.Api.Controllers;
@@ -79,23 +80,7 @@ public class CvController : ControllerBase
     public async Task<ActionResult<List<CvDocumentDto>>> GetAllDocuments()
     {
         var documents = await _repository.GetAllAsync();
-        var dtos = documents.Select(d => new CvDocumentDto
-        {
-            Id = d.Id,
-            FileName = d.FileName,
-            FullName = d.FullName,
-            Email = d.Email,
-            PhoneNumber = d.PhoneNumber,
-            UploadedAt = d.UploadedAt,
-            ParsedAt = d.ParsedAt,
-            Skills = d.Skills.Select(s => new SkillDto
-            {
-                Name = s.Name,
-                Category = s.Category,
-                YearsOfExperience = s.YearsOfExperience,
-                Level = s.Level.ToString()
-            }).ToList()
-        }).ToList();
+        var dtos = documents.Select(MapToDto).ToList();
 
         return Ok(dtos);
     }
@@ -114,25 +99,7 @@ public class CvController : ControllerBase
             return NotFound();
         }
 
-        var dto = new CvDocumentDto
-        {
-            Id = document.Id,
-            FileName = document.FileName,
-            FullName = document.FullName,
-            Email = document.Email,
-            PhoneNumber = document.PhoneNumber,
-            UploadedAt = document.UploadedAt,
-            ParsedAt = document.ParsedAt,
-            Skills = document.Skills.Select(s => new SkillDto
-            {
-                Name = s.Name,
-                Category = s.Category,
-                YearsOfExperience = s.YearsOfExperience,
-                Level = s.Level.ToString()
-            }).ToList()
-        };
-
-        return Ok(dto);
+        return Ok(MapToDto(document));
     }
 
     /// <summary>
@@ -150,5 +117,26 @@ public class CvController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    private static CvDocumentDto MapToDto(CvDocument document)
+    {
+        return new CvDocumentDto
+        {
+            Id = document.Id,
+            FileName = document.FileName,
+            FullName = document.FullName,
+            Email = document.Email,
+            PhoneNumber = document.PhoneNumber,
+            UploadedAt = document.UploadedAt,
+            ParsedAt = document.ParsedAt,
+            Skills = document.Skills.Select(s => new SkillDto
+            {
+                Name = s.Name,
+                Category = s.Category,
+                YearsOfExperience = s.YearsOfExperience,
+                Level = s.Level.ToString()
+            }).ToList()
+        };
     }
 }
