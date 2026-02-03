@@ -1,0 +1,6 @@
+@CvParser.Api_HostAddress = http://localhost:5023
+
+GET {{CvParser.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
