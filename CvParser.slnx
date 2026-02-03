@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CvParser.Api/CvParser.Api.csproj" />
+  </Folder>
+</Solution>
