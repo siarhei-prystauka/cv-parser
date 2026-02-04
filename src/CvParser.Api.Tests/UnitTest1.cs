@@ -1,4 +1,4 @@
-﻿namespace CvParser.Tests;
+﻿namespace CvParser.Api.Tests;
 
 public class Tests
 {
