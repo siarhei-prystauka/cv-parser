@@ -10,29 +10,6 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 
 ## Code Style and Best Practices
 
-### .NET Backend
-- Follow Microsoft's official C# coding conventions
-- Use async/await for all I/O operations
-- Implement proper dependency injection using built-in DI container
-- Use minimal APIs for simple endpoints, controllers for complex logic
-- Apply proper exception handling and logging
-- Follow RESTful API design principles
-- Use record types for DTOs
-- Implement proper validation using Data Annotations or FluentValidation
-- Use LINQ for data querying
-- Follow the principle of separation of concerns
-
-### React TypeScript Frontend
-- Use functional components with hooks
-- Prefer arrow functions for component definitions
-- Use TypeScript strict mode
-- Define proper interfaces/types for all props and state
-- Use async/await for API calls
-- Implement proper error handling and loading states
-- Follow React best practices for performance (useMemo, useCallback when needed)
-- Keep components small and focused
-- Use CSS modules or styled-components for styling
-
 ## Architecture Guidelines
 - Keep business logic separate from presentation layer
 - Use repository pattern for data access in .NET
@@ -59,3 +36,9 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 - Write clear, concise commit messages
 - Keep commits atomic and focused
 - Use conventional commit format when possible
+
+## Prompt History
+- Maintain prompt-history.md in the repository root.
+- For every Copilot command or request, append a new entry with a timestamp and a short, readable summary.
+- Use ISO 8601 timestamps with timezone (for example: 2026-02-07T14:30:00+01:00).
+- Do not rewrite or reorder existing entries; only append.
