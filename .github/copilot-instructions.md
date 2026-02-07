@@ -1,7 +1,7 @@
 # GitHub Copilot Instructions
 
 ## Project Overview
-This is a full-stack web application with a .NET 10 Web API backend and React TypeScript frontend.
+This is a full-stack web application with a .NET 10 Web API backend and React TypeScript frontend that reads a new employee’s CV and IFU, extracts skills, and saves them in a structured format.
 
 ## Technology Stack
 - **Backend**: .NET 10 Web API (C#)
