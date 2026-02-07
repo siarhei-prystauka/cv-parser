@@ -47,3 +47,20 @@
   - Updated prompt history and committed changes.
   Notes: Both dev servers remain running. Feature branch is now 2 commits ahead of main.
 
+- Timestamp: 2026-02-07T16:30:00+01:00
+  Request: Refactor Minimal API to controller-based architecture.
+  Prompt: "why have you used ProfilesEndpoints instead of Controllers?" followed by "Refactor as you suggested and update project requirements/instructions accordingly"
+  Actions:
+  - Created ProfilesController with attribute routing and XML documentation.
+  - Replaced Minimal API endpoints with controller actions (GetProfiles, GetProfile, PreviewCvSkills, UpdateSkills).
+  - Updated Program.cs to use AddControllers() and MapControllers().
+  - Replaced Microsoft.AspNetCore.OpenApi with Swashbuckle.AspNetCore 7.2.0.
+  - Enabled XML documentation generation in CvParser.Api.csproj.
+  - Added ProducesResponseType attributes for OpenAPI documentation.
+  - Updated validation to use ModelState and ValidationProblem().
+  - Deleted obsolete Endpoints/ProfilesEndpoints.cs file.
+  - Updated aspnet-rest-api.instructions.md to prefer controllers for multi-endpoint APIs.
+  - Updated README.md with architecture section and API endpoint documentation.
+  - Updated .github/copilot-instructions.md with controller-based guidance.
+  Notes: Controller approach provides better OpenAPI documentation, automatic model validation via [ApiController], and conventional routing patterns. API functionality remains identical—same routes, validation, and responses.
+

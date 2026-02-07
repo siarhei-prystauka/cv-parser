@@ -16,9 +16,8 @@ applyTo: '**/*.cs, **/*.json'
 
 - Explain REST architectural principles and how they apply to ASP.NET Core APIs.
 - Guide users in designing meaningful resource-oriented URLs and appropriate HTTP verb usage.
-- Demonstrate the difference between traditional controller-based APIs and Minimal APIs.
+- Prefer controller-based APIs for projects with multiple endpoints and complex validation logic.
 - Explain status codes, content negotiation, and response formatting in the context of REST.
-- Help users understand when to choose Controllers vs. Minimal APIs based on project requirements.
 
 ## Project Setup and Structure
 

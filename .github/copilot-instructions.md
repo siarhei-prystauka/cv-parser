@@ -13,11 +13,13 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 ## Architecture Guidelines
 - Keep business logic separate from presentation layer
 - Use repository pattern for data access in .NET
+- Use controller-based APIs for structured, multi-endpoint RESTful services
 - Implement proper API versioning
 - Use environment-specific configuration files
 - Follow SOLID principles
 - Write clean, self-documenting code
 - Add comments for complex logic only
+- Include XML documentation comments for all public APIs
 
 ## Testing
 - Write unit tests for business logic
