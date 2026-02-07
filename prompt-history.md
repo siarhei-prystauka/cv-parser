@@ -21,3 +21,9 @@
   Actions:
   - Begin frontend UI and mocked backend setup.
 
+- Timestamp: 2026-02-07T16:15:00+01:00
+  Request: Move latest commit to feature branch.
+  Actions:
+  - Created feature/cv-parser-ui-and-api branch with implementation commit.
+  - Reset main to align with origin/main.
+
