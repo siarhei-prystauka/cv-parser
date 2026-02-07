@@ -16,3 +16,8 @@
   - Added prompt-history.md template.
   - Documented prompt history logging rules in Copilot instructions.
 
+- Timestamp: 2026-02-07T15:42:00+01:00
+  Request: Start implementation of CV parser web app plan.
+  Actions:
+  - Begin frontend UI and mocked backend setup.
+

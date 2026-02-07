@@ -1,27 +1,20 @@
-import { useState } from 'react'
 import './App.css'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { AdminLayout } from './layouts/AdminLayout'
+import { MainLayout } from './layouts/MainLayout'
+import { AdminPage } from './pages/AdminPage'
+import { ProfilesPage } from './pages/ProfilesPage'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <h1>CV Parser</h1>
-      </div>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        React + TypeScript + .NET Web API
-      </p>
-    </>
-  )
-}
+const App = () => (
+  <Routes>
+    <Route element={<MainLayout />}>
+      <Route path="/" element={<ProfilesPage />} />
+    </Route>
+    <Route element={<AdminLayout />}>
+      <Route path="/admin" element={<AdminPage />} />
+    </Route>
+    <Route path="*" element={<Navigate to="/" replace />} />
+  </Routes>
+)
 
 export default App

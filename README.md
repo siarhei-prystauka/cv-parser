@@ -37,7 +37,7 @@ dotnet restore
 dotnet run
 ```
 
-The API will be available at `http://localhost:5000`
+The API will be available at `http://localhost:5028`
 
 ### Frontend
 
@@ -51,9 +51,9 @@ The frontend will be available at `http://localhost:5173`
 
 ## Development
 
-- Backend API: [http://localhost:5000](http://localhost:5000)
+- Backend API: [http://localhost:5028](http://localhost:5028)
 - Frontend Dev Server: [http://localhost:5173](http://localhost:5173)
-- Swagger UI: [http://localhost:5000/swagger](http://localhost:5000/swagger)
+- Swagger UI: [http://localhost:5028/swagger](http://localhost:5028/swagger)
 
 ## Build
 
