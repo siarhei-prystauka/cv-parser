@@ -100,3 +100,17 @@
   - Verified build succeeds with no errors.
   Notes: Folder names now follow plural convention commonly used in ASP.NET Core projects for better consistency.
 
+- Timestamp: 2026-02-14T11:15:00+01:00
+  Request: Establish test naming conventions across C# and TypeScript.
+  Prompt: "Generate test method naming instruction so the naming was <method_under_test>_<scenario>_<expected_result>" followed by "Yes" to update existing tests.
+  Actions:
+  - Created .github/instructions/testing.instructions.md with comprehensive test naming guidelines.
+  - Established C# pattern: `<MethodUnderTest>_<Scenario>_<ExpectedResult>` (PascalCase).
+  - Established TypeScript pattern: `<methodUnderTest> - <scenario> - <expected result>` (camelCase/sentence case).
+  - Updated InMemoryProfileRepositoryTests: GetAll_ReturnsSeededProfiles → GetAll_OnInitialization_ReturnsSeededProfiles.
+  - Updated ProfilesPage.test.tsx: "renders the main heading" → "render - on mount - displays heading".
+  - Updated csharp.instructions.md to reference testing naming convention.
+  - Updated reactjs.instructions.md to reference testing naming convention.
+  - Verified test project builds successfully.
+  Notes: Test naming now follows a consistent pattern that clearly describes what is being tested, under what conditions, and what the expected outcome is. This improves test readability and maintainability.
+

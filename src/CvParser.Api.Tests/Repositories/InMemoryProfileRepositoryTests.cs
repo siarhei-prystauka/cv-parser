@@ -11,7 +11,7 @@ public sealed class InMemoryProfileRepositoryTests
     /// Ensures seeded profiles are available for development.
     /// </summary>
     [Test]
-    public void GetAll_ReturnsSeededProfiles()
+    public void GetAll_OnInitialization_ReturnsSeededProfiles()
     {
         var repository = new InMemoryProfileRepository();
 

@@ -9,7 +9,7 @@ vi.mock('../../api/client', () => ({
 }))
 
 describe('ProfilesPage', () => {
-  it('renders the main heading', async () => {
+  it('render - on mount - displays heading', async () => {
     render(<ProfilesPage />)
 
     expect(await screen.findByText('Newcomer Profiles')).toBeInTheDocument()
