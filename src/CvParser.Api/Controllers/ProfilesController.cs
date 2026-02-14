@@ -1,3 +1,4 @@
+using CvParser.Api.Converters;
 using CvParser.Api.Models;
 using CvParser.Api.Models.Requests;
 using CvParser.Api.Models.Responses;
@@ -17,26 +18,30 @@ public class ProfilesController : ControllerBase
 {
     private readonly IProfileRepository _repository;
     private readonly ICvSkillExtractor _extractor;
+    private readonly IProfileConverter _converter;
 
     /// <summary>
     /// Initializes a new instance of the ProfilesController.
     /// </summary>
-    public ProfilesController(IProfileRepository repository, ICvSkillExtractor extractor)
+    public ProfilesController(
+        IProfileRepository repository,
+        ICvSkillExtractor extractor,
+        IProfileConverter converter)
     {
         _repository = repository;
         _extractor = extractor;
+        _converter = converter;
     }
 
     /// <summary>
     /// Retrieves all employee profiles.
     /// </summary>
     /// <returns>A list of profile summaries.</returns>
-    /// <response code="200">Returns the list of profiles.</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProfileSummary>), StatusCodes.Status200OK)]
     public ActionResult<IEnumerable<ProfileSummary>> GetProfiles()
     {
-        var profiles = _repository.GetAll().Select(ToSummaryDto);
+        var profiles = _repository.GetAll().Select(_converter.ToSummary);
         return Ok(profiles);
     }
 
@@ -58,7 +63,7 @@ public class ProfilesController : ControllerBase
             return NotFound();
         }
 
-        return Ok(ToDetailDto(profile));
+        return Ok(_converter.ToDetail(profile));
     }
 
     /// <summary>
@@ -127,37 +132,7 @@ public class ProfilesController : ControllerBase
             return NotFound();
         }
 
-        return Ok(ToDetailDto(updated));
-    }
-
-    /// <summary>
-    /// Converts a profile into a summary DTO.
-    /// </summary>
-    private static ProfileSummary ToSummaryDto(EmployeeProfile profile)
-    {
-        return new ProfileSummary(
-            profile.Id,
-            profile.FirstName,
-            profile.LastName,
-            profile.DateOfBirth,
-            profile.DepartmentName,
-            profile.Skills
-        );
-    }
-
-    /// <summary>
-    /// Converts a profile into a detail DTO.
-    /// </summary>
-    private static ProfileDetail ToDetailDto(EmployeeProfile profile)
-    {
-        return new ProfileDetail(
-            profile.Id,
-            profile.FirstName,
-            profile.LastName,
-            profile.DateOfBirth,
-            profile.DepartmentName,
-            profile.Skills
-        );
+        return Ok(_converter.ToDetail(updated));
     }
 
     /// <summary>

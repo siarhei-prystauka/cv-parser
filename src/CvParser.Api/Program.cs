@@ -1,3 +1,4 @@
+using CvParser.Api.Converters;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
 
@@ -22,6 +23,7 @@ builder.Services.AddSwaggerGen(options =>
 // Register application services
 builder.Services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
 builder.Services.AddScoped<ICvSkillExtractor, MockCvSkillExtractor>();
+builder.Services.AddScoped<IProfileConverter, ProfileConverter>();
 
 // Configure CORS for development
 builder.Services.AddCors(options =>

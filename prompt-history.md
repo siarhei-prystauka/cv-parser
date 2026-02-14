@@ -114,3 +114,39 @@
   - Verified test project builds successfully.
   Notes: Test naming now follows a consistent pattern that clearly describes what is being tested, under what conditions, and what the expected outcome is. This improves test readability and maintainability.
 
+- Timestamp: 2026-02-14T11:20:00+01:00
+  Request: Remove remaining Dto references from ProfilesController.
+  Prompt: "ProfileController still contains Dto prefix in method names etc. Fix this"
+  Actions:
+  - Renamed ToSummaryDto() → ToSummary()
+  - Renamed ToDetailDto() → ToDetail()
+  - Updated XML comments: "Converts a profile into a summary DTO" → "Converts a profile into a summary response model"
+  - Updated XML comments: "Converts a profile into a detail DTO" → "Converts a profile into a detail response model"
+  - Updated all method invocations in GetProfiles(), GetProfile(), and UpdateSkills()
+  - Verified build succeeds with no errors
+  Notes: All references to "Dto" have been removed from the controller, completing the transition away from DTO naming conventions to cleaner response model names.
+
+- Timestamp: 2026-02-14T11:25:00+01:00
+  Request: Extract converter methods to dedicated class.
+  Prompt: "Create Converters folder in the root and move these converter method to a separate classes"
+  Actions:
+  - Created Converters/ProfileConverter.cs with static ToSummary() and ToDetail() methods.
+  - Updated ProfilesController to use ProfileConverter.ToSummary() and ProfileConverter.ToDetail().
+  - Added using CvParser.Api.Converters to ProfilesController.
+  - Removed private converter methods from ProfilesController.
+  - Verified build succeeds after clean and rebuild.
+  Notes: Converter methods are now in a dedicated ProfileConverter class, improving separation of concerns and making the controller more focused on HTTP request handling rather than data transformation.
+
+- Timestamp: 2026-02-14T11:40:00+01:00
+  Request: Convert ProfileConverter from static to instance-based injectable service.
+  Prompt: "Converter should not be static classes with static methods, fix it"
+  Actions:
+  - Created IProfileConverter interface in Converters/IProfileConverter.cs.
+  - Changed ProfileConverter from static class to sealed instance class implementing IProfileConverter.
+  - Removed static keywords from ToSummary and ToDetail methods.
+  - Updated ProfilesController constructor to inject IProfileConverter.
+  - Changed all ProfileConverter.ToSummary/ToDetail() calls to _converter.ToSummary/ToDetail().
+  - Registered IProfileConverter as scoped service in Program.cs.
+  - Fixed corrupted controller methods (GetProfile and UpdateSkills) with proper null checks.
+  - Verified build successful with no errors.
+  Notes: Following dependency injection best practices; converters are now testable services. This allows for easier mocking in unit tests and follows SOLID principles (interface segregation, dependency inversion).
