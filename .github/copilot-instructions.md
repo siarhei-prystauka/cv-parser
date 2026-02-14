@@ -1,7 +1,7 @@
 # GitHub Copilot Instructions
 
 ## Project Overview
-This is a full-stack web application with a .NET 10 Web API backend and React TypeScript frontend that reads a new employee’s CV and IFU, extracts skills, and saves them in a structured format.
+This is a full-stack web application with a .NET 10 Web API backend and React TypeScript frontend that reads a new employee’s CV, extracts skills, and saves them in a structured format.
 
 ## Technology Stack
 - **Backend**: .NET 10 Web API (C#)
@@ -13,11 +13,13 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 ## Architecture Guidelines
 - Keep business logic separate from presentation layer
 - Use repository pattern for data access in .NET
+- Use controller-based APIs for structured, multi-endpoint RESTful services
 - Implement proper API versioning
 - Use environment-specific configuration files
 - Follow SOLID principles
 - Write clean, self-documenting code
 - Add comments for complex logic only
+- Include XML documentation comments for all public APIs
 
 ## Testing
 - Write unit tests for business logic
@@ -39,6 +41,6 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 
 ## Prompt History
 - Maintain prompt-history.md in the repository root.
-- For every Copilot command or request, append a new entry with a timestamp and a short, readable summary.
+- For every Copilot command or request in plan or agent mode, append a new entry with a timestamp and a short, readable summary.
 - Use ISO 8601 timestamps with timezone (for example: 2026-02-07T14:30:00+01:00).
 - Do not rewrite or reorder existing entries; only append.

@@ -107,6 +107,7 @@ Instructions for building high-quality ReactJS applications with modern patterns
 
 ### Testing
 - Write unit tests for components using React Testing Library
+- Follow the naming convention: `<methodUnderTest> - <scenario> - <expected result>` (see testing.instructions.md for details)
 - Test component behavior, not implementation details
 - Use Jest for test runner and assertion library
 - Implement integration tests for complex component interactions

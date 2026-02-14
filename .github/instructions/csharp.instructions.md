@@ -89,6 +89,7 @@ applyTo: '**/*.cs'
 
 - Always include test cases for critical paths of the application.
 - Guide users through creating unit tests.
+- Follow the naming convention: `<MethodUnderTest>_<Scenario>_<ExpectedResult>` (see testing.instructions.md for details).
 - Do not emit "Act", "Arrange" or "Assert" comments.
 - Copy existing style in nearby files for test method names and capitalization.
 - Explain integration testing approaches for API endpoints.

@@ -4,9 +4,27 @@ Web application that reads a new employee's CV and IFU, extracts skills, and sav
 
 ## Technology Stack
 
-- **Backend**: .NET 10 Web API
+- **Backend**: .NET 10 Web API (Controller-based)
 - **Frontend**: React 18 with TypeScript (Vite)
 - **Solution**: slnx format
+
+## Architecture
+
+### Backend (.NET 10 Web API)
+- **Controllers**: RESTful endpoints using attribute routing
+- **Repository Pattern**: `IProfileRepository` abstraction for data access
+- **Service Layer**: `ICvSkillExtractor` for CV processing
+- **In-Memory Storage**: Development implementation with seeded profiles
+- **Validation**: Model state validation with problem details responses
+- **Documentation**: Swagger/OpenAPI with XML comments
+
+### Frontend (React + TypeScript)
+- **Layouts**: Main and Admin layout components
+- **Routing**: React Router v6 with nested routes
+- **Styling**: Tailwind CSS with custom theme
+- **UI Components**: Headless UI for accessible components
+- **State Management**: React hooks for local state
+- **API Client**: Fetch-based client with error handling
 
 ## Project Structure
 
@@ -37,7 +55,7 @@ dotnet restore
 dotnet run
 ```
 
-The API will be available at `http://localhost:5000`
+The API will be available at `http://localhost:5028`
 
 ### Frontend
 
@@ -49,11 +67,20 @@ npm run dev
 
 The frontend will be available at `http://localhost:5173`
 
+## API Endpoints
+
+All endpoints are versioned under `/api/v1`:
+
+- `GET /api/v1/profiles` - List all profiles
+- `GET /api/v1/profiles/{id}` - Get profile details
+- `POST /api/v1/profiles/{id}/cv/preview` - Preview extracted skills (PDF upload)
+- `PUT /api/v1/profiles/{id}/skills` - Save confirmed skills
+
 ## Development
 
-- Backend API: [http://localhost:5000](http://localhost:5000)
+- Backend API: [http://localhost:5028](http://localhost:5028)
 - Frontend Dev Server: [http://localhost:5173](http://localhost:5173)
-- Swagger UI: [http://localhost:5000/swagger](http://localhost:5000/swagger)
+- Swagger UI: [http://localhost:5028/swagger](http://localhost:5028/swagger)
 
 ## Build
 
