@@ -64,3 +64,39 @@
   - Updated .github/copilot-instructions.md with controller-based guidance.
   Notes: Controller approach provides better OpenAPI documentation, automatic model validation via [ApiController], and conventional routing patterns. API functionality remains identical—same routes, validation, and responses.
 
+- Timestamp: 2026-02-14T10:45:00+01:00
+  Request: Remove "Dto" suffix from API model names.
+  Prompt: "remove dto prefix for model returned by asp.net controllers, update or delete corresponding instruction in the csharp.instructions.md if exists."
+  Actions:
+  - Renamed ProfileSummaryDto → ProfileSummary
+  - Renamed ProfileDetailDto → ProfileDetail
+  - Renamed CvPreviewResponseDto → CvPreviewResponse
+  - Updated all references in ProfilesController.cs
+  - Deleted old DTO files with Dto suffix
+  - Verified build succeeds with no errors
+  Notes: Frontend TypeScript types already used names without Dto suffix, so no frontend changes needed. No explicit DTO naming guidance existed in csharp.instructions.md to remove.
+
+- Timestamp: 2026-02-14T11:00:00+01:00
+  Request: Reorganize API models into Models folder structure.
+  Prompt: "Create Response folder in Models folder, move files from Dtos folder to Response folder and remove Dtos folder. Update namespaces accordingly"
+  Actions:
+  - Created Models/Response folder with ProfileSummary, ProfileDetail, and CvPreviewResponse.
+  - Created Models/Request folder with UpdateSkillsRequest.
+  - Updated ProfilesController namespaces from CvParser.Api.Dtos to CvParser.Api.Models.Response and CvParser.Api.Models.Request.
+  - Deleted Dtos folder and all its contents.
+  - Verified build succeeds with no errors.
+  Notes: API models now follow a clearer organization with separate Request and Response folders under Models, improving code structure and discoverability.
+
+- Timestamp: 2026-02-14T11:05:00+01:00
+  Request: Update folder names to plural convention.
+  Prompt: "Update folder name to plural: Request -> Requests, Response -> responses"
+  Actions:
+  - Renamed Models/Request → Models/Requests
+  - Renamed Models/Response → Models/Responses
+  - Updated namespaces: CvParser.Api.Models.Request → CvParser.Api.Models.Requests
+  - Updated namespaces: CvParser.Api.Models.Response → CvParser.Api.Models.Responses
+  - Updated ProfilesController using statements.
+  - Deleted old singular folders.
+  - Verified build succeeds with no errors.
+  Notes: Folder names now follow plural convention commonly used in ASP.NET Core projects for better consistency.
+

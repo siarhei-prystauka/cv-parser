@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CvParser.Api.Dtos;
+namespace CvParser.Api.Models.Requests;
 
 /// <summary>
 /// Payload for updating a profile skill list.

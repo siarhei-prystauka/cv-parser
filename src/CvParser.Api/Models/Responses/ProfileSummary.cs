@@ -1,9 +1,9 @@
-namespace CvParser.Api.Dtos;
+namespace CvParser.Api.Models.Responses;
 
 /// <summary>
-/// Represents the profile fields needed for list views.
+/// Represents a profile summary for list views.
 /// </summary>
-public sealed record ProfileSummaryDto(
+public sealed record ProfileSummary(
     Guid Id,
     string FirstName,
     string LastName,

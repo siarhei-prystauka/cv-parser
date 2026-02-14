@@ -1,9 +1,9 @@
-namespace CvParser.Api.Dtos;
+namespace CvParser.Api.Models.Responses;
 
 /// <summary>
 /// Returns the extracted skills from a CV preview.
 /// </summary>
-public sealed record CvPreviewResponseDto(
+public sealed record CvPreviewResponse(
     string FileName,
     IReadOnlyList<string> ExtractedSkills
 );

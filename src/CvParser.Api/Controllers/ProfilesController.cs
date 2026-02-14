@@ -1,5 +1,6 @@
-using CvParser.Api.Dtos;
 using CvParser.Api.Models;
+using CvParser.Api.Models.Requests;
+using CvParser.Api.Models.Responses;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -32,8 +33,8 @@ public class ProfilesController : ControllerBase
     /// <returns>A list of profile summaries.</returns>
     /// <response code="200">Returns the list of profiles.</response>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<ProfileSummaryDto>), StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<ProfileSummaryDto>> GetProfiles()
+    [ProducesResponseType(typeof(IEnumerable<ProfileSummary>), StatusCodes.Status200OK)]
+    public ActionResult<IEnumerable<ProfileSummary>> GetProfiles()
     {
         var profiles = _repository.GetAll().Select(ToSummaryDto);
         return Ok(profiles);
@@ -47,9 +48,9 @@ public class ProfilesController : ControllerBase
     /// <response code="200">Returns the profile details.</response>
     /// <response code="404">If the profile is not found.</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ProfileDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProfileDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<ProfileDetailDto> GetProfile(Guid id)
+    public ActionResult<ProfileDetail> GetProfile(Guid id)
     {
         var profile = _repository.GetById(id);
         if (profile is null)
@@ -71,10 +72,10 @@ public class ProfilesController : ControllerBase
     /// <response code="400">If the file is invalid or not a PDF.</response>
     /// <response code="404">If the profile is not found.</response>
     [HttpPost("{id:guid}/cv/preview")]
-    [ProducesResponseType(typeof(CvPreviewResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CvPreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CvPreviewResponseDto>> PreviewCvSkills(
+    public async Task<ActionResult<CvPreviewResponse>> PreviewCvSkills(
         Guid id,
         IFormFile cvFile,
         CancellationToken cancellationToken)
@@ -93,7 +94,7 @@ public class ProfilesController : ControllerBase
 
         await using var fileStream = cvFile.OpenReadStream();
         var skills = await _extractor.ExtractSkillsAsync(fileStream, cvFile.FileName, cancellationToken);
-        var response = new CvPreviewResponseDto(cvFile.FileName, skills);
+        var response = new CvPreviewResponse(cvFile.FileName, skills);
 
         return Ok(response);
     }
@@ -108,10 +109,10 @@ public class ProfilesController : ControllerBase
     /// <response code="400">If the skills payload is invalid.</response>
     /// <response code="404">If the profile is not found.</response>
     [HttpPut("{id:guid}/skills")]
-    [ProducesResponseType(typeof(ProfileDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProfileDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<ProfileDetailDto> UpdateSkills(Guid id, [FromBody] UpdateSkillsRequest request)
+    public ActionResult<ProfileDetail> UpdateSkills(Guid id, [FromBody] UpdateSkillsRequest request)
     {
         var validationResult = ValidateSkills(request);
         if (validationResult is not null)
@@ -132,9 +133,9 @@ public class ProfilesController : ControllerBase
     /// <summary>
     /// Converts a profile into a summary DTO.
     /// </summary>
-    private static ProfileSummaryDto ToSummaryDto(EmployeeProfile profile)
+    private static ProfileSummary ToSummaryDto(EmployeeProfile profile)
     {
-        return new ProfileSummaryDto(
+        return new ProfileSummary(
             profile.Id,
             profile.FirstName,
             profile.LastName,
@@ -147,9 +148,9 @@ public class ProfilesController : ControllerBase
     /// <summary>
     /// Converts a profile into a detail DTO.
     /// </summary>
-    private static ProfileDetailDto ToDetailDto(EmployeeProfile profile)
+    private static ProfileDetail ToDetailDto(EmployeeProfile profile)
     {
-        return new ProfileDetailDto(
+        return new ProfileDetail(
             profile.Id,
             profile.FirstName,
             profile.LastName,
