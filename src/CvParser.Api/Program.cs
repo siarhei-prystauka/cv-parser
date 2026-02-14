@@ -25,7 +25,7 @@ builder.Services.AddSwaggerGen(options =>
 // Register text extraction services
 builder.Services.AddScoped<PdfTextExtractor>();
 // TODO: Add DocxTextExtractor when DOCX support is implemented (see GitHub issue)
-builder.Services.AddSingleton<CvTextExtractorFactory>();
+builder.Services.AddScoped<CvTextExtractorFactory>();
 
 // Register Groq HTTP client with retry policy
 builder.Services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>(client =>

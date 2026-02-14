@@ -1,9 +1,11 @@
-using UglyToad.PdfPig;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
 
 namespace CvParser.Api.Services;
 
 /// <summary>
-/// Extracts plain text from PDF files using PdfPig.
+/// Extracts plain text from PDF files using iText7.
 /// </summary>
 public class PdfTextExtractor : ICvTextExtractor
 {
@@ -26,19 +28,21 @@ public class PdfTextExtractor : ICvTextExtractor
 
         try
         {
-            // PdfPig requires a seekable stream
+            // iText7 requires a seekable stream
             var memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
 
-            using var document = PdfDocument.Open(memoryStream);
+            using var pdfReader = new PdfReader(memoryStream);
+            using var pdfDocument = new PdfDocument(pdfReader);
+            
             var textBuilder = new System.Text.StringBuilder();
-
-            foreach (var page in document.GetPages())
+            
+            for (int page = 1; page <= pdfDocument.GetNumberOfPages(); page++)
             {
-                // Use page.Text for basic text extraction
-                var text = page.Text;
-                textBuilder.AppendLine(text);
+                var strategy = new SimpleTextExtractionStrategy();
+                var pageText = iText.Kernel.Pdf.Canvas.Parser.PdfTextExtractor.GetTextFromPage(pdfDocument.GetPage(page), strategy);
+                textBuilder.AppendLine(pageText);
             }
 
             var extractedText = textBuilder.ToString().Trim();

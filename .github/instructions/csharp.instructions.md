@@ -97,6 +97,16 @@ applyTo: '**/*.cs'
 - Show how to test authentication and authorization logic.
 - Explain test-driven development principles as applied to API development.
 
+## Dependency Management
+
+- **Never use alpha, beta, or preview versions** of NuGet packages in production code
+- Always prefer stable, production-ready package versions
+- Check package download statistics and last update date to assess maintenance status
+- Verify package licenses comply with project requirements (prefer MIT, Apache 2.0, BSD)
+- Use specific version numbers in .csproj files for predictable builds
+- Document the purpose of each package dependency in comments for team awareness
+- Regularly update packages to stable versions for security patches
+
 ## Performance Optimization
 
 - Guide users on implementing caching strategies (in-memory, distributed, response caching).

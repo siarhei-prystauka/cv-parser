@@ -21,6 +21,14 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 - Add comments for complex logic only
 - Include XML documentation comments for all public APIs
 
+## Dependencies and Package Management
+- **Never use alpha, beta, or preview versions** of NuGet packages or npm packages
+- Always use stable, production-ready versions
+- Check package stability and maintenance status before adoption
+- Prefer well-established libraries with active communities
+- Review package licenses for compatibility with project requirements
+- Keep dependencies up to date with stable releases
+
 ## Testing
 - Write unit tests for business logic
 - Use NUnit for .NET testing
