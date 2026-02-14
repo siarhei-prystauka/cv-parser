@@ -30,7 +30,12 @@ builder.Services.AddScoped<CvTextExtractorFactory>();
 // Register Groq HTTP client with retry policy
 builder.Services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>(client =>
 {
-    var baseUrl = builder.Configuration["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1";
+    var baseUrl = builder.Configuration["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
+    // Ensure trailing slash for proper URI combining
+    if (!baseUrl.EndsWith("/"))
+    {
+        baseUrl += "/";
+    }
     client.BaseAddress = new Uri(baseUrl);
     
     var timeoutSeconds = builder.Configuration.GetValue<int>("Groq:TimeoutSeconds", 30);

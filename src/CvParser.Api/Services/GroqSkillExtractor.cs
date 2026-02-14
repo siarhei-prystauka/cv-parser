@@ -42,6 +42,15 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             throw new InvalidOperationException("Groq API key is not configured. Set the Groq:ApiKey configuration value.");
         }
 
+        // Trim whitespace that might have been accidentally added
+        apiKey = apiKey.Trim();
+        
+        // Debug: Log first/last 4 characters to verify key is loaded (don't log full key!)
+        _logger.LogDebug("API Key loaded: {Prefix}...{Suffix} (length: {Length})", 
+            apiKey[..Math.Min(4, apiKey.Length)], 
+            apiKey.Length > 4 ? apiKey[^4..] : "", 
+            apiKey.Length);
+
         var model = _configuration["Groq:Model"] ?? "llama-3.1-8b-instant";
         var maxTokens = int.Parse(_configuration["Groq:MaxTokens"] ?? "1000");
 
@@ -69,17 +78,24 @@ public class GroqSkillExtractor : ILlmSkillExtractor
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
 
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/chat/completions")
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "chat/completions")
             {
                 Content = new StringContent(requestJson, System.Text.Encoding.UTF8, "application/json")
             };
             
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-            _logger.LogInformation("Sending request to Groq API with model {Model}", model);
+            var fullUrl = $"{_httpClient.BaseAddress}chat/completions";
+            _logger.LogInformation("Sending request to Groq API: {Url} with model {Model}", fullUrl, model);
 
             var response = await _httpClient.SendAsync(httpRequest);
-            response.EnsureSuccessStatusCode();
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Groq API returned {StatusCode}: {Error}", response.StatusCode, errorContent);
+                throw new InvalidOperationException($"Groq API error: {response.StatusCode} - {errorContent}");
+            }
 
             var responseContent = await response.Content.ReadAsStringAsync();
             var groqResponse = JsonSerializer.Deserialize<GroqResponse>(responseContent, new JsonSerializerOptions
