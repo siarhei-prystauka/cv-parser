@@ -150,3 +150,22 @@
   - Fixed corrupted controller methods (GetProfile and UpdateSkills) with proper null checks.
   - Verified build successful with no errors.
   Notes: Following dependency injection best practices; converters are now testable services. This allows for easier mocking in unit tests and follows SOLID principles (interface segregation, dependency inversion).
+
+- Timestamp: 2026-02-14T16:30:00+01:00
+  Request: Implement CV extraction pipeline with PDF parsing and Groq LLM integration.
+  Prompt: "We need to implement CV extraction functionality. User should be able upload newcomer's CV in PDF format. For example, extract hard IT skills: .NET, MS SQL Server, soft skills: team management etc. Research .NET libraries from trust sources. Let's use Groq. Start implementation"
+  Actions:
+  - Added NuGet packages: UglyToad.PdfPig (0.1.9), DocumentFormat.OpenXml (3.2.0), Microsoft.Extensions.Http.Polly (8.0.0).
+  - Created text extraction layer: ICvTextExtractor, PdfTextExtractor (uses PdfPig ContentOrderTextExtractor), DocxTextExtractor (skeleton for future), CvTextExtractorFactory.
+  - Created Groq LLM integration: ILlmSkillExtractor, GroqSkillExtractor with OpenAI-compatible API, JSON mode, retry policy.
+  - Created skills-taxonomy.json with 47 common IT skills (languages, frameworks, databases, cloud, tools) plus aliases.
+  - Implemented HybridCvSkillExtractor: extracts text → matches taxonomy first → LLM fallback → merges/deduplicates results.
+  - Updated appsettings.json with Groq config (BaseUrl, Model: llama-3.1-8b-instant, Timeouts, MaxTokens) and FileValidation (10MB limit, PDF only).
+  - Updated ProfilesController: added IConfiguration injection, replaced ValidatePdfFile with ValidateCvFile (10MB check), updated PreviewCvSkills signature (contentType parameter).
+  - Updated ICvSkillExtractor interface: changed signature to include contentType parameter instead of CancellationToken.
+  - Updated Program.cs: registered PdfTextExtractor, CvTextExtractorFactory, configured HttpClient for GroqSkillExtractor with retry policy, replaced MockCvSkillExtractor with HybridCvSkillExtractor.
+  - Updated frontend CvUploadDialog: added MAX_FILE_SIZE_MB (10), handleFileChange with client-side validation (size + PDF type), displays selected file size, improved error messaging.
+  - Created GitHub issue template for DOCX support at /tmp/github-issue-docx.md (medium priority, deferred for now).
+  - Removed DOCX support from current implementation (PDF only): commented out DocxTextExtractor registration, updated validation to PDF-only, reverted frontend accept attribute.
+  Notes: DocxTextExtractor.cs kept in codebase for future GitHub issue. API key stored in Groq:ApiKey config (environment variable in production). Hybrid approach prioritizes taxonomy for speed/consistency, uses LLM for edge cases. All error handling with proper logging at each layer.
+

@@ -1,6 +1,8 @@
 using CvParser.Api.Converters;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
+using Polly;
+using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +22,25 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
+// Register text extraction services
+builder.Services.AddScoped<PdfTextExtractor>();
+// TODO: Add DocxTextExtractor when DOCX support is implemented (see GitHub issue)
+builder.Services.AddSingleton<CvTextExtractorFactory>();
+
+// Register Groq HTTP client with retry policy
+builder.Services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>(client =>
+{
+    var baseUrl = builder.Configuration["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1";
+    client.BaseAddress = new Uri(baseUrl);
+    
+    var timeoutSeconds = builder.Configuration.GetValue<int>("Groq:TimeoutSeconds", 30);
+    client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+})
+.AddPolicyHandler(GetRetryPolicy());
+
 // Register application services
 builder.Services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
-builder.Services.AddScoped<ICvSkillExtractor, MockCvSkillExtractor>();
+builder.Services.AddScoped<ICvSkillExtractor, HybridCvSkillExtractor>();
 builder.Services.AddScoped<IProfileConverter, ProfileConverter>();
 
 // Configure CORS for development
@@ -54,3 +72,18 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+/// <summary>
+/// Gets a retry policy for resilient HTTP calls to Groq API.
+/// </summary>
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(new[]
+        {
+            TimeSpan.FromSeconds(1),
+            TimeSpan.FromSeconds(2),
+            TimeSpan.FromSeconds(5)
+        });
+}

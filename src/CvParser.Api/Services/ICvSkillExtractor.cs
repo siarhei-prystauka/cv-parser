@@ -8,5 +8,9 @@ public interface ICvSkillExtractor
     /// <summary>
     /// Extracts skills from a CV file for preview.
     /// </summary>
-    Task<IReadOnlyList<string>> ExtractSkillsAsync(Stream fileStream, string fileName, CancellationToken cancellationToken);
+    /// <param name="fileStream">The CV file stream.</param>
+    /// <param name="fileName">The name of the CV file.</param>
+    /// <param name="contentType">The MIME content type of the file.</param>
+    /// <returns>A list of extracted skill names.</returns>
+    Task<IReadOnlyList<string>> ExtractSkillsAsync(Stream fileStream, string fileName, string contentType);
 }

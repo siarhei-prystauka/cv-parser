@@ -19,6 +19,7 @@ public class ProfilesController : ControllerBase
     private readonly IProfileRepository _repository;
     private readonly ICvSkillExtractor _extractor;
     private readonly IProfileConverter _converter;
+    private readonly IConfiguration _configuration;
 
     /// <summary>
     /// Initializes a new instance of the ProfilesController.
@@ -26,11 +27,13 @@ public class ProfilesController : ControllerBase
     public ProfilesController(
         IProfileRepository repository,
         ICvSkillExtractor extractor,
-        IProfileConverter converter)
+        IProfileConverter converter,
+        IConfiguration configuration)
     {
         _repository = repository;
         _extractor = extractor;
         _converter = converter;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -74,7 +77,7 @@ public class ProfilesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Extracted skills for preview.</returns>
     /// <response code="200">Returns extracted skills.</response>
-    /// <response code="400">If the file is invalid or not a PDF.</response>
+    /// <response code="400">If the file is invalid, unsupported format, or exceeds size limit.</response>
     /// <response code="404">If the profile is not found.</response>
     [HttpPost("{id:guid}/cv/preview")]
     [ProducesResponseType(typeof(CvPreviewResponse), StatusCodes.Status200OK)]
@@ -91,14 +94,14 @@ public class ProfilesController : ControllerBase
             return NotFound();
         }
 
-        var validationResult = ValidatePdfFile(cvFile);
+        var validationResult = ValidateCvFile(cvFile);
         if (validationResult is not null)
         {
             return validationResult;
         }
 
         await using var fileStream = cvFile.OpenReadStream();
-        var skills = await _extractor.ExtractSkillsAsync(fileStream, cvFile.FileName, cancellationToken);
+        var skills = await _extractor.ExtractSkillsAsync(fileStream, cvFile.FileName, cvFile.ContentType);
         var response = new CvPreviewResponse(cvFile.FileName, skills);
 
         return Ok(response);
@@ -136,9 +139,9 @@ public class ProfilesController : ControllerBase
     }
 
     /// <summary>
-    /// Validates that the provided file is a non-empty PDF.
+    /// Validates that the provided file is a non-empty PDF within size limits.
     /// </summary>
-    private ActionResult? ValidatePdfFile(IFormFile? file)
+    private ActionResult? ValidateCvFile(IFormFile? file)
     {
         if (file is null || file.Length == 0)
         {
@@ -146,13 +149,23 @@ public class ProfilesController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
+        // Check file size (10 MB default)
+        var maxFileSizeBytes = _configuration.GetValue<long>("FileValidation:MaxFileSizeBytes", 10485760);
+        if (file.Length > maxFileSizeBytes)
+        {
+            var maxSizeMb = maxFileSizeBytes / 1024.0 / 1024.0;
+            ModelState.AddModelError("cvFile", $"File size exceeds the maximum allowed size of {maxSizeMb:F1} MB.");
+            return ValidationProblem(ModelState);
+        }
+
+        // Check content type (PDF only for now)
         var extension = Path.GetExtension(file.FileName);
-        var isPdf = string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(file.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase);
+        var isPdf = string.Equals(file.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase);
 
         if (!isPdf)
         {
-            ModelState.AddModelError("cvFile", "Only PDF uploads are supported.");
+            ModelState.AddModelError("cvFile", "Only PDF file format is supported.");
             return ValidationProblem(ModelState);
         }
 
