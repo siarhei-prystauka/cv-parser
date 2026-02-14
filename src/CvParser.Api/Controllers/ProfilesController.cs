@@ -12,7 +12,7 @@ namespace CvParser.Api.Controllers;
 /// Manages employee profile operations including CV upload and skill extraction.
 /// </summary>
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/Profiles")]
 [Produces("application/json")]
 public class ProfilesController : ControllerBase
 {

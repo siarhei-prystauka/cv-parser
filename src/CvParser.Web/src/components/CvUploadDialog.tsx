@@ -24,8 +24,15 @@ export const CvUploadDialog = ({ isOpen, profile, onClose, onProfileUpdated }: C
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const canSave = useMemo(() => previewReady && skillsText.trim().length > 0 && !isSaving, [previewReady, skillsText, isSaving])
+  const skillsList = useMemo(
+    () => toSkillList(skillsText),
+    [skillsText]
+  )
 
+  const canSave = useMemo(
+    () => previewReady && skillsList.length > 0 && !isSaving,
+    [previewReady, skillsList.length, isSaving]
+  )
   useEffect(() => {
     setPreviewReady(false)
     setSkillsText('')
