@@ -57,6 +57,21 @@ dotnet run
 
 The API will be available at `http://localhost:5028`
 
+#### Groq API Key
+
+Set the key using User Secrets (recommended):
+
+```bash
+cd src/CvParser.Api
+dotnet user-secrets set "Groq:ApiKey" "YOUR_KEY"
+```
+
+Or set an environment variable:
+
+```bash
+export Groq__ApiKey=YOUR_KEY
+```
+
 ### Frontend
 
 ```bash
