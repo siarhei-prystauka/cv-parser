@@ -4,7 +4,7 @@ using System.Text;
 namespace CvParser.Api.Services;
 
 /// <summary>
-/// Provides deterministic placeholder skills for development previews.
+/// Returns deterministic placeholder skills for development.
 /// </summary>
 public sealed class MockCvSkillExtractor : ICvSkillExtractor
 {
@@ -24,7 +24,6 @@ public sealed class MockCvSkillExtractor : ICvSkillExtractor
         "User research"
     ];
 
-    /// <inheritdoc />
     public Task<IReadOnlyList<string>> ExtractSkillsAsync(Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken = default)
     {
         var seed = BuildSeed(fileStream, fileName);
@@ -35,9 +34,6 @@ public sealed class MockCvSkillExtractor : ICvSkillExtractor
         return Task.FromResult<IReadOnlyList<string>>(skills);
     }
 
-    /// <summary>
-    /// Builds a repeatable seed from file metadata.
-    /// </summary>
     private static int BuildSeed(Stream fileStream, string fileName)
     {
         var fileNameBytes = Encoding.UTF8.GetBytes(fileName);

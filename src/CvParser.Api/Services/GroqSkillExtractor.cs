@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace CvParser.Api.Services;
 
 /// <summary>
-/// Groq LLM skill extractor using the OpenAI-compatible API.
+/// Extracts skills via the Groq LLM API (OpenAI-compatible).
 /// </summary>
 public class GroqSkillExtractor : ILlmSkillExtractor
 {
@@ -25,9 +25,6 @@ public class GroqSkillExtractor : ILlmSkillExtractor
         _logger = logger;
     }
 
-    /// <summary>
-    /// Extracts skills from CV text using Groq's Llama model.
-    /// </summary>
     public async Task<IEnumerable<string>> ExtractSkillsAsync(string cvText, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(cvText))
@@ -42,10 +39,8 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             throw new InvalidOperationException("Groq API key is not configured. Set the Groq:ApiKey configuration value.");
         }
 
-        // Trim whitespace that might have been accidentally added
         apiKey = apiKey.Trim();
-        
-        // Debug: Confirm that an API key is configured without logging any part of it
+
         _logger.LogDebug("Groq API key is configured.");
 
         var model = _configuration["Groq:Model"] ?? "llama-3.1-8b-instant";
@@ -63,7 +58,6 @@ public class GroqSkillExtractor : ILlmSkillExtractor
 
         try
         {
-            // Truncate CV text if too long (keep first 3000 chars to stay within token limits)
             var truncatedText = cvText.Length > 3000 ? cvText[..3000] : cvText;
             
             if (cvText.Length > 3000)
@@ -82,7 +76,7 @@ public class GroqSkillExtractor : ILlmSkillExtractor
                 },
                 ResponseFormat = new { type = "json_object" },
                 MaxTokens = maxTokens,
-                Temperature = 0.1 // Low temperature for consistent extraction
+                Temperature = 0.1
             };
 
             var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions
@@ -129,7 +123,6 @@ public class GroqSkillExtractor : ILlmSkillExtractor
                 return Enumerable.Empty<string>();
             }
 
-            // Parse the JSON response to extract skills array
             var skillsResponse = JsonSerializer.Deserialize<SkillsResponse>(messageContent, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -152,9 +145,6 @@ public class GroqSkillExtractor : ILlmSkillExtractor
         }
     }
 
-    /// <summary>
-    /// Groq API request model.
-    /// </summary>
     private record GroqRequest
     {
         public required string Model { get; init; }
@@ -164,34 +154,22 @@ public class GroqSkillExtractor : ILlmSkillExtractor
         public double Temperature { get; init; }
     }
 
-    /// <summary>
-    /// Groq API message model.
-    /// </summary>
     private record GroqMessage
     {
         public required string Role { get; init; }
         public required string Content { get; init; }
     }
 
-    /// <summary>
-    /// Groq API response model.
-    /// </summary>
     private record GroqResponse
     {
         public GroqChoice[]? Choices { get; init; }
     }
 
-    /// <summary>
-    /// Groq API choice model.
-    /// </summary>
     private record GroqChoice
     {
         public GroqMessage? Message { get; init; }
     }
 
-    /// <summary>
-    /// Skills response from Groq (parsed from JSON content).
-    /// </summary>
     private record SkillsResponse
     {
         public IEnumerable<string>? Skills { get; init; }

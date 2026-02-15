@@ -1,49 +1,39 @@
 namespace CvParser.Api.Services;
 
 /// <summary>
-/// Factory for creating appropriate CV text extractors based on content type.
+/// Selects the appropriate text extractor by matching content type.
 /// </summary>
-public class CvTextExtractorFactory
+public class CvTextExtractorFactory : ICvTextExtractorFactory
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IEnumerable<ICvTextExtractor> _extractors;
     private readonly ILogger<CvTextExtractorFactory> _logger;
 
     public CvTextExtractorFactory(
-        IServiceProvider serviceProvider,
+        IEnumerable<ICvTextExtractor> extractors,
         ILogger<CvTextExtractorFactory> logger)
     {
-        _serviceProvider = serviceProvider;
+        _extractors = extractors;
         _logger = logger;
     }
 
-    /// <summary>
-    /// Gets the appropriate text extractor for the given content type.
-    /// </summary>
-    /// <param name="contentType">The MIME content type.</param>
-    /// <returns>The text extractor instance.</returns>
-    /// <exception cref="NotSupportedException">Thrown when the content type is not supported.</exception>
     public ICvTextExtractor GetExtractor(string contentType)
     {
         _logger.LogDebug("Getting extractor for content type: {ContentType}", contentType);
 
-        ICvTextExtractor extractor = contentType switch
+        var extractor = _extractors
+            .FirstOrDefault(e => string.Equals(e.SupportedContentType, contentType, StringComparison.OrdinalIgnoreCase));
+
+        if (extractor is null)
         {
-            "application/pdf" => _serviceProvider.GetRequiredService<PdfTextExtractor>(),
-            // TODO: Add DOCX support (see GitHub issue for DOCX extraction)
-            // "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => _serviceProvider.GetRequiredService<DocxTextExtractor>(),
-            _ => throw new NotSupportedException($"Content type '{contentType}' is not supported. Currently only PDF files are supported.")
-        };
+            throw new NotSupportedException(
+                $"Content type '{contentType}' is not supported. Supported types: {string.Join(", ", _extractors.Select(e => e.SupportedContentType))}.");
+        }
 
         return extractor;
     }
 
-    /// <summary>
-    /// Checks if the content type is supported.
-    /// </summary>
-    public static bool IsSupported(string contentType)
+    public bool IsSupported(string contentType)
     {
-        return contentType is "application/pdf";
-        // TODO: Add DOCX when support is implemented
-        // or "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        return _extractors.Any(e => string.Equals(e.SupportedContentType, contentType, StringComparison.OrdinalIgnoreCase));
     }
 }

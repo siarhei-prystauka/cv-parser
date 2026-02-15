@@ -1,7 +1,7 @@
 namespace CvParser.Api.Models.Responses;
 
 /// <summary>
-/// Represents a profile summary for list views.
+/// Lightweight profile summary for list views.
 /// </summary>
 public sealed record ProfileSummary(
     Guid Id,

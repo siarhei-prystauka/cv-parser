@@ -11,14 +11,13 @@ public class PdfTextExtractor : ICvTextExtractor
 {
     private readonly ILogger<PdfTextExtractor> _logger;
 
+    public string SupportedContentType => "application/pdf";
+
     public PdfTextExtractor(ILogger<PdfTextExtractor> logger)
     {
         _logger = logger;
     }
 
-    /// <summary>
-    /// Extracts text from a PDF file stream.
-    /// </summary>
     public async Task<string> ExtractTextAsync(Stream fileStream, string contentType)
     {
         if (contentType != "application/pdf")
@@ -28,7 +27,6 @@ public class PdfTextExtractor : ICvTextExtractor
 
         try
         {
-            // iText7 requires a seekable stream
             using var memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;

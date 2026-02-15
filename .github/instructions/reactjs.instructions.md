@@ -154,7 +154,7 @@ Instructions for building high-quality ReactJS applications with modern patterns
 9. Add testing coverage for components and functionality
 10. Optimize performance and bundle size
 11. Ensure accessibility compliance
-12. Add documentation and code comments
+12. Use self-documenting code instead of comments
 
 ## Additional Guidelines
 - Follow React's naming conventions (PascalCase for components, camelCase for functions)

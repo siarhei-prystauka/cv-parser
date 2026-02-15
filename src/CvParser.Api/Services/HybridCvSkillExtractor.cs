@@ -4,17 +4,17 @@ using System.Text.RegularExpressions;
 namespace CvParser.Api.Services;
 
 /// <summary>
-/// Hybrid CV skill extractor that uses taxonomy-first matching with LLM fallback.
+/// Taxonomy-first skill extractor with LLM fallback.
 /// </summary>
 public class HybridCvSkillExtractor : ICvSkillExtractor
 {
-    private readonly CvTextExtractorFactory _textExtractorFactory;
+    private readonly ICvTextExtractorFactory _textExtractorFactory;
     private readonly ILlmSkillExtractor _llmExtractor;
     private readonly ILogger<HybridCvSkillExtractor> _logger;
     private readonly SkillsTaxonomy _taxonomy;
 
     public HybridCvSkillExtractor(
-        CvTextExtractorFactory textExtractorFactory,
+        ICvTextExtractorFactory textExtractorFactory,
         ILlmSkillExtractor llmExtractor,
         IWebHostEnvironment environment,
         ILogger<HybridCvSkillExtractor> logger)
@@ -25,9 +25,6 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
         _taxonomy = LoadTaxonomy(environment);
     }
 
-    /// <summary>
-    /// Extracts skills from a CV file using hybrid taxonomy-first approach.
-    /// </summary>
     public async Task<IReadOnlyList<string>> ExtractSkillsAsync(
         Stream cvFileStream,
         string fileName,
@@ -38,7 +35,6 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
 
         try
         {
-            // Step 1: Extract text from CV
             var extractor = _textExtractorFactory.GetExtractor(contentType);
             var cvText = await extractor.ExtractTextAsync(cvFileStream, contentType);
 
@@ -50,18 +46,14 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
 
             _logger.LogInformation("Extracted {Length} characters from CV", cvText.Length);
 
-            // Step 2: Normalize and tokenize text
             var normalizedText = NormalizeText(cvText);
-            
-            // Step 3: Match against taxonomy
+
             var taxonomyMatches = MatchTaxonomy(normalizedText);
             _logger.LogInformation("Taxonomy matched {Count} skills", taxonomyMatches.Count());
 
-            // Step 4: Use LLM for additional skill extraction
             var llmSkills = await _llmExtractor.ExtractSkillsAsync(cvText, cancellationToken);
             _logger.LogInformation("LLM extracted {Count} skills", llmSkills.Count());
 
-            // Step 5: Merge and deduplicate results
             var allSkills = taxonomyMatches.Concat(llmSkills)
                 .Select(s => s.Trim())
                 .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -79,18 +71,11 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
         }
     }
 
-    /// <summary>
-    /// Normalizes text for better matching (lowercase, remove special chars).
-    /// </summary>
     private static string NormalizeText(string text)
     {
-        // Convert to lowercase and normalize whitespace
         return Regex.Replace(text.ToLowerInvariant(), @"\s+", " ");
     }
 
-    /// <summary>
-    /// Matches skills from the taxonomy in the CV text.
-    /// </summary>
     private IEnumerable<string> MatchTaxonomy(string normalizedText)
     {
         var matches = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -118,29 +103,18 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
         return matches;
     }
 
-    /// <summary>
-    /// Checks if text contains a skill pattern with word boundaries.
-    /// </summary>
     private static bool ContainsSkillPattern(string text, string skill)
     {
         var normalizedSkill = skill.ToLowerInvariant();
-        
-        // Use word boundary matching to avoid partial matches
-        // Special handling for skills with dots or special characters
+
+        // Word boundary matching to avoid partial matches
         var pattern = Regex.Escape(normalizedSkill);
-        
-        // Replace escaped dots with actual dot patterns
         pattern = pattern.Replace(@"\.", @"\.?");
-        
-        // Add word boundaries, but handle special cases
         pattern = $@"(?<![a-z0-9]){pattern}(?![a-z0-9])";
 
         return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
     }
 
-    /// <summary>
-    /// Loads the skills taxonomy from JSON file.
-    /// </summary>
     private static SkillsTaxonomy LoadTaxonomy(IWebHostEnvironment environment)
     {
         var taxonomyPath = Path.Combine(environment.ContentRootPath, "Data", "skills-taxonomy.json");
@@ -164,17 +138,11 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
         return taxonomy;
     }
 
-    /// <summary>
-    /// Skills taxonomy model.
-    /// </summary>
     private record SkillsTaxonomy
     {
         public required Skill[] Skills { get; init; }
     }
 
-    /// <summary>
-    /// Individual skill model.
-    /// </summary>
     private record Skill
     {
         public required string Name { get; init; }

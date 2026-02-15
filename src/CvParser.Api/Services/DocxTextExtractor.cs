@@ -10,14 +10,13 @@ public class DocxTextExtractor : ICvTextExtractor
 {
     private readonly ILogger<DocxTextExtractor> _logger;
 
+    public string SupportedContentType => "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
     public DocxTextExtractor(ILogger<DocxTextExtractor> logger)
     {
         _logger = logger;
     }
 
-    /// <summary>
-    /// Extracts text from a DOCX file stream.
-    /// </summary>
     public async Task<string> ExtractTextAsync(Stream fileStream, string contentType)
     {
         if (contentType != "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
@@ -27,7 +26,6 @@ public class DocxTextExtractor : ICvTextExtractor
 
         try
         {
-            // Open XML SDK requires a seekable stream
             using var memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
@@ -41,7 +39,6 @@ public class DocxTextExtractor : ICvTextExtractor
 
             var textBuilder = new System.Text.StringBuilder();
 
-            // Extract text from body paragraphs
             var body = document.MainDocumentPart.Document.Body;
             if (body is not null)
             {
@@ -55,7 +52,6 @@ public class DocxTextExtractor : ICvTextExtractor
                 }
             }
 
-            // Extract text from tables
             foreach (var table in body?.Descendants<Table>() ?? Enumerable.Empty<Table>())
             {
                 foreach (var cell in table.Descendants<TableCell>())

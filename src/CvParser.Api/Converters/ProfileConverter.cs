@@ -4,13 +4,10 @@ using CvParser.Api.Models.Responses;
 namespace CvParser.Api.Converters;
 
 /// <summary>
-/// Provides conversion methods for employee profile models.
+/// Converts between domain models and API response models.
 /// </summary>
 public sealed class ProfileConverter : IProfileConverter
 {
-    /// <summary>
-    /// Converts a profile into a summary response model.
-    /// </summary>
     public ProfileSummary ToSummary(EmployeeProfile profile)
     {
         return new ProfileSummary(
@@ -23,9 +20,6 @@ public sealed class ProfileConverter : IProfileConverter
         );
     }
 
-    /// <summary>
-    /// Converts a profile into a detail response model.
-    /// </summary>
     public ProfileDetail ToDetail(EmployeeProfile profile)
     {
         return new ProfileDetail(

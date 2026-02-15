@@ -1,7 +1,7 @@
 namespace CvParser.Api.Models.Responses;
 
 /// <summary>
-/// Represents the complete profile details returned by the API.
+/// Full profile details returned by the API.
 /// </summary>
 public sealed record ProfileDetail(
     Guid Id,
