@@ -95,17 +95,17 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             var fullUrl = $"{_httpClient.BaseAddress}chat/completions";
             _logger.LogInformation("Sending request to Groq API: {Url} with model {Model}", fullUrl, model);
 
-            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+            using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
             
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
+                var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
                 var correlationId = Guid.NewGuid().ToString("D");
                 _logger.LogError("Groq API returned {StatusCode} with CorrelationId {CorrelationId}: {Error}", response.StatusCode, correlationId, errorContent);
                 throw new InvalidOperationException($"Groq API error. StatusCode: {response.StatusCode}, CorrelationId: {correlationId}");
             }
 
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             var groqResponse = JsonSerializer.Deserialize<GroqResponse>(responseContent, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase

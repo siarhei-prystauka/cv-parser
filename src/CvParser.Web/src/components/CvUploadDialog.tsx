@@ -69,13 +69,18 @@ export const CvUploadDialog = ({ isOpen, profile, onClose, onProfileUpdated }: C
     if (file.size > MAX_FILE_SIZE_BYTES) {
       setError(`File size exceeds the maximum allowed size of ${MAX_FILE_SIZE_MB} MB`)
       setSelectedFile(null)
+      event.currentTarget.value = ''
       return
     }
 
-    // Validate file type (PDF only)
-    if (file.type !== 'application/pdf') {
+    // Validate file type by MIME type or extension (some browsers report empty/incorrect MIME)
+    const fileExtension = file.name.split('.').pop()?.toLowerCase()
+    const isValidType = file.type === 'application/pdf' || fileExtension === 'pdf'
+
+    if (!isValidType) {
       setError('Only PDF file format is supported')
       setSelectedFile(null)
+      event.currentTarget.value = ''
       return
     }
 

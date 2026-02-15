@@ -169,3 +169,14 @@
   - Removed DOCX support from current implementation (PDF only): commented out DocxTextExtractor registration, updated validation to PDF-only, reverted frontend accept attribute.
   Notes: DocxTextExtractor.cs kept in codebase for future GitHub issue. API key stored in Groq:ApiKey config (environment variable in production). Hybrid approach prioritizes taxonomy for speed/consistency, uses LLM for edge cases. All error handling with proper logging at each layer.
 
+- Timestamp: 2026-02-15T18:25:00+01:00
+  Request: Check and prepare fixes for all unresolved comments to PR #6
+  Actions:
+  - Reviewed all 22 PR review comments; identified 5 unresolved.
+  - Created GitHub issue #7 for configurable LLM fallback mode (comment #1 — design decision deferred to Admin page).
+  - Fixed HttpResponseMessage disposal in GroqSkillExtractor (added `using var response`).
+  - Refactored ValidateCvFile in ProfilesController to read SupportedContentTypes from appsettings.json instead of hard-coding PDF. Added content-type-to-extension map for fallback validation.
+  - Updated CvUploadDialog client-side validation to also check file extension as fallback (not just MIME type).
+  - Fixed file input not clearing on validation failure in CvUploadDialog (added `event.currentTarget.value = ''`).
+  Notes: Build succeeded, 2/2 tests pass. Changes not committed per user request.
+

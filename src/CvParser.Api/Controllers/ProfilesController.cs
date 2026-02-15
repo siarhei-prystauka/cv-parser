@@ -133,13 +133,29 @@ public class ProfilesController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var extension = Path.GetExtension(file.FileName);
-        var isPdf = string.Equals(file.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase);
+        var supportedContentTypes = _configuration.GetSection("FileValidation:SupportedContentTypes")
+            .Get<string[]>() ?? ["application/pdf"];
 
-        if (!isPdf)
+        var contentTypeExtensionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ModelState.AddModelError("cvFile", "Only PDF file format is supported.");
+            ["application/pdf"] = ".pdf",
+            ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"] = ".docx"
+        };
+
+        var extension = Path.GetExtension(file.FileName);
+        var isSupported = supportedContentTypes.Any(ct =>
+            string.Equals(file.ContentType, ct, StringComparison.OrdinalIgnoreCase) ||
+            (contentTypeExtensionMap.TryGetValue(ct, out var ext) &&
+             string.Equals(extension, ext, StringComparison.OrdinalIgnoreCase)));
+
+        if (!isSupported)
+        {
+            var supportedExtensions = supportedContentTypes
+                .Where(ct => contentTypeExtensionMap.ContainsKey(ct))
+                .Select(ct => contentTypeExtensionMap[ct].ToUpperInvariant())
+                .ToList();
+            var formatsText = string.Join(", ", supportedExtensions);
+            ModelState.AddModelError("cvFile", $"Unsupported file format. Supported formats: {formatsText}.");
             return ValidationProblem(ModelState);
         }
 
