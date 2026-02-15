@@ -180,3 +180,15 @@
   - Fixed file input not clearing on validation failure in CvUploadDialog (added `event.currentTarget.value = ''`).
   Notes: Build succeeded, 2/2 tests pass. Changes not committed per user request.
 
+- Timestamp: 2026-02-15T19:00:00+01:00
+  Request: Refactor IConfiguration usage to Options Pattern.
+  Prompt: "Analyze IConfiguration usage in the project and suggest better alternatives" followed by "yes"
+  Actions:
+  - Created Models/Options/GroqOptions.cs with data annotations validation (Required, Url, Range).
+  - Created Models/Options/FileValidationOptions.cs with data annotations validation.
+  - Updated Program.cs to register both options with BindConfiguration, ValidateDataAnnotations, and ValidateOnStart.
+  - Refactored GroqSkillExtractor: replaced IConfiguration injection with IOptions<GroqOptions>, removed manual config parsing and validation, simplified code.
+  - Refactored ProfilesController: replaced IConfiguration injection with IOptions<FileValidationOptions>, updated ValidateCvFile method.
+  - Refactored ServiceCollectionExtensions: updated HttpClient configuration to use IOptions<GroqOptions> from service provider.
+  - Verified build succeeds with no errors.
+  Notes: All configuration now uses strongly-typed Options Pattern with compile-time safety, IntelliSense support, and fail-fast validation at startup. Eliminates magic strings, improves testability, and follows .NET best practices.

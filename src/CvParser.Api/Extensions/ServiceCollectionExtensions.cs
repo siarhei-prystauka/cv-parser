@@ -1,6 +1,8 @@
 using CvParser.Api.Converters;
+using CvParser.Api.Models.Options;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 
@@ -21,18 +23,18 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ICvTextExtractorFactory, CvTextExtractorFactory>();
 
-        services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>(client =>
+        services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>((serviceProvider, client) =>
         {
-            var baseUrl = configuration["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
+            var groqOptions = serviceProvider.GetRequiredService<IOptions<GroqOptions>>().Value;
+            
+            var baseUrl = groqOptions.BaseUrl;
             // Ensure trailing slash for proper URI combining
             if (!baseUrl.EndsWith('/'))
             {
                 baseUrl += "/";
             }
             client.BaseAddress = new Uri(baseUrl);
-
-            var timeoutSeconds = configuration.GetValue<int>("Groq:TimeoutSeconds", 30);
-            client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+            client.Timeout = TimeSpan.FromSeconds(groqOptions.TimeoutSeconds);
         })
         .AddPolicyHandler(GetRetryPolicy());
 
