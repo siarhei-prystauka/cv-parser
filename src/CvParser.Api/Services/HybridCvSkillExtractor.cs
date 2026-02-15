@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using CvParser.Api.Repositories;
 
 namespace CvParser.Api.Services;
 
@@ -11,17 +12,20 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
     private readonly ICvTextExtractorFactory _textExtractorFactory;
     private readonly ILlmSkillExtractor _llmExtractor;
     private readonly ILogger<HybridCvSkillExtractor> _logger;
+    private readonly ISettingsRepository _settingsRepository;
     private readonly SkillsTaxonomy _taxonomy;
 
     public HybridCvSkillExtractor(
         ICvTextExtractorFactory textExtractorFactory,
         ILlmSkillExtractor llmExtractor,
         IWebHostEnvironment environment,
+        ISettingsRepository settingsRepository,
         ILogger<HybridCvSkillExtractor> logger)
     {
         _textExtractorFactory = textExtractorFactory;
         _llmExtractor = llmExtractor;
         _logger = logger;
+        _settingsRepository = settingsRepository;
         _taxonomy = LoadTaxonomy(environment);
     }
 
@@ -51,8 +55,19 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
             var taxonomyMatches = MatchTaxonomy(normalizedText);
             _logger.LogInformation("Taxonomy matched {Count} skills", taxonomyMatches.Count());
 
-            var llmSkills = await _llmExtractor.ExtractSkillsAsync(cvText, cancellationToken);
-            _logger.LogInformation("LLM extracted {Count} skills", llmSkills.Count());
+            var options = await _settingsRepository.GetSkillExtractionOptionsAsync();
+            
+            IEnumerable<string> llmSkills;
+            if (options.LlmFallbackOnly && taxonomyMatches.Any())
+            {
+                _logger.LogInformation("LlmFallbackOnly mode enabled and taxonomy found skills - skipping LLM call");
+                llmSkills = Array.Empty<string>();
+            }
+            else
+            {
+                llmSkills = await _llmExtractor.ExtractSkillsAsync(cvText, cancellationToken);
+                _logger.LogInformation("LLM extracted {Count} skills", llmSkills.Count());
+            }
 
             var allSkills = taxonomyMatches.Concat(llmSkills)
                 .Select(s => s.Trim())

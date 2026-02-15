@@ -1,0 +1,19 @@
+{
+  "skills": [
+    {
+      "name": "C#",
+      "category": "language",
+      "aliases": ["csharp", "c sharp"]
+    },
+    {
+      "name": "Python",
+      "category": "language",
+      "aliases": ["python programming"]
+    },
+    {
+      "name": "React",
+      "category": "framework",
+      "aliases": ["reactjs", "react.js"]
+    }
+  ]
+}

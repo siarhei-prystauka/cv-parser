@@ -25,6 +25,18 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<SkillExtractionOptions>()
+            .BindConfiguration(SkillExtractionOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddSingleton<ISettingsRepository>(serviceProvider =>
+        {
+            var groqOptions = serviceProvider.GetRequiredService<IOptions<GroqOptions>>().Value;
+            var skillExtractionOptions = serviceProvider.GetRequiredService<IOptions<SkillExtractionOptions>>().Value;
+            return new InMemorySettingsRepository(skillExtractionOptions, groqOptions);
+        });
+
         services.AddScoped<ICvTextExtractor, PdfTextExtractor>();
         // TODO: Register DocxTextExtractor when DOCX support is implemented (see GitHub issue #5)
         // services.AddScoped<ICvTextExtractor, DocxTextExtractor>();
@@ -33,7 +45,8 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>((serviceProvider, client) =>
         {
-            var groqOptions = serviceProvider.GetRequiredService<IOptions<GroqOptions>>().Value;
+            var settingsRepository = serviceProvider.GetRequiredService<ISettingsRepository>();
+            var groqOptions = settingsRepository.GetGroqOptionsAsync().GetAwaiter().GetResult();
             
             var baseUrl = groqOptions.BaseUrl;
             // Ensure trailing slash for proper URI combining

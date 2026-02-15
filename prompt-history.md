@@ -215,3 +215,31 @@
   - Removed CvParser.Api.Models.Options using and options registration block from Program.cs.
   - Updated call site in Program.cs to parameterless AddApplicationServices().
   Notes: Build succeeds with 0 warnings, 0 errors. DI setup is now fully centralized in the extension method.
+
+- Timestamp: 2026-02-15T20:30:00+01:00
+  Request: Implement frontend for issue #7 - configurable LLM skill extraction.
+  Prompt: "You are implementing the frontend for issue #7 - configurable LLM skill extraction. The backend is complete, now implement the React frontend."
+  Actions:
+  - Updated src/CvParser.Web/src/api/client.ts: Added settings types import, created settingsApi with getSettings(), updateSettings(), and getTaxonomy() methods following profileApi pattern.
+  - Created src/CvParser.Web/src/components/SettingsForm.tsx: Form with LlmFallbackOnly toggle switch, Groq config inputs (baseUrl, model, timeoutSeconds, maxTokens), form validation with error messages, save button with loading state, success/error status messages. Uses sand/bone/ink Tailwind theme.
+  - Created src/CvParser.Web/src/components/TaxonomyViewer.tsx: Displays TaxonomySkill[] grouped by category with collapsible sections, search/filter input, expand/collapse all buttons, shows skill names and aliases. Clean read-only design with sand/bone/ink theme.
+  - Updated src/CvParser.Web/src/pages/AdminPage.tsx: Replaced placeholder with full implementation. Fetches settings and taxonomy on mount using Promise.all, shows loading/error states, renders SettingsForm and TaxonomyViewer in two-column layout (responsive), handles save with success/error feedback, refreshes settings after successful save.
+  Notes: All components follow existing patterns from ProfilesPage and CvUploadDialog. TypeScript types use no 'any', proper error handling with user-friendly messages, responsive design with Tailwind, loading states for all async operations. Frontend verified with 0 TypeScript errors.
+
+- Timestamp: 2026-02-15T21:00:00+01:00
+  Request: Write backend tests for issue #7 - configurable LLM skill extraction.
+  Prompt: "You are writing backend tests for issue #7 - configurable LLM skill extraction."
+  Actions:
+  - Added NSubstitute 5.3.0 NuGet package to CvParser.Api.Tests.csproj for mocking dependencies.
+  - Created src/CvParser.Api.Tests/TestData/Data/skills-taxonomy.json: Minimal test taxonomy with 3 skills (C#, Python, React) for HybridCvSkillExtractor tests. Configured to copy to output directory.
+  - Created src/CvParser.Api.Tests/Repositories/InMemorySettingsRepositoryTests.cs: 5 tests covering GetSkillExtractionOptionsAsync returns initial values, GetGroqOptionsAsync returns initial values, UpdateSkillExtractionOptionsAsync persists changes, UpdateGroqOptionsAsync persists changes, concurrent updates with 50 threads to verify thread safety. All async/await with NUnit 4.
+  - Created src/CvParser.Api.Tests/Services/HybridCvSkillExtractorTests.cs: 7 tests covering LlmFallbackOnly=false always calls LLM, LlmFallbackOnly=true with taxonomy matches skips LLM, LlmFallbackOnly=true without taxonomy matches calls LLM (fallback), taxonomy alias matching returns canonical names, duplicate skills are deduplicated, empty text returns empty list. Mocks ICvTextExtractorFactory, ILlmSkillExtractor, IWebHostEnvironment, ISettingsRepository, ILogger using NSubstitute. Verifies LLM extractor calls with Received()/DidNotReceive().
+  Notes: All 13 tests pass (5 InMemorySettingsRepositoryTests + 7 HybridCvSkillExtractorTests + 1 existing InMemoryProfileRepositoryTests). Followed C# instructions with summaries on test classes only, proper NUnit attributes ([Test], [TestFixture], [SetUp]), naming convention <Method>_<Scenario>_<ExpectedResult>. Tests validate core issue #7 logic: configurable LLM fallback behavior and thread-safe settings updates.
+
+- Timestamp: 2026-02-15T21:15:00+01:00
+  Request: Rewrite SettingsForm.test.tsx after component refactoring.
+  Prompt: "Rewrite the frontend test file for SettingsForm component. The component has been refactored: 'Groq Configuration' renamed to 'LLM Configuration', only the 'model' field is editable (via dropdown), baseUrl/timeoutSeconds/maxTokens are NO LONGER user-editable (application config). Settings structure changed: groq → llm. LlmSettings now has: { model: string, availableModels: string[] }. UpdateSettingsRequest now has: { skillExtraction: { llmFallbackOnly: boolean }, llm: { model: string } }."
+  Actions:
+  - Completely rewrote src/CvParser.Web/src/components/__tests__/SettingsForm.test.tsx: Removed all 14 tests for timeout/maxTokens/baseUrl validation (fields no longer editable). Kept 8 core tests (render mount, render initial values, render model dropdown contents, toggle llmFallbackOnly switch false→true and true→false, submit with valid data, submit success message, submit error message, submit loading state). Added 1 new test: change model selection updates form data. Updated mockSettings to match new structure with llm.model and llm.availableModels. All tests validate the LLM Configuration dropdown (not input fields).
+  - Verified all 10 tests pass with vitest.
+  Notes: Test suite now matches simplified SettingsForm component where only model selection (via dropdown) is user-editable. Removed 15 obsolete tests for fields moved to application config. All tests follow TypeScript naming convention (<methodUnderTest> - <scenario> - <expected result>).

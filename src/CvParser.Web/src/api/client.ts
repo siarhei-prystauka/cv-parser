@@ -1,4 +1,5 @@
 import type { CvPreviewResponse, ProfileDetail, ProfileSummary, UpdateSkillsRequest } from '../types/profile'
+import type { SettingsResponse, TaxonomyResponse, UpdateSettingsRequest } from '../types/settings'
 
 const API_BASE = '/api/v1'
 
@@ -40,5 +41,27 @@ export const profileApi = {
     })
 
     return toJson<ProfileDetail>(response)
+  },
+}
+
+export const settingsApi = {
+  async getSettings(): Promise<SettingsResponse> {
+    const response = await fetch(`${API_BASE}/settings`)
+    return toJson<SettingsResponse>(response)
+  },
+  async updateSettings(request: UpdateSettingsRequest): Promise<SettingsResponse> {
+    const response = await fetch(`${API_BASE}/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    })
+
+    return toJson<SettingsResponse>(response)
+  },
+  async getTaxonomy(): Promise<TaxonomyResponse> {
+    const response = await fetch(`${API_BASE}/settings/taxonomy`)
+    return toJson<TaxonomyResponse>(response)
   },
 }
