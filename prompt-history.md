@@ -192,3 +192,17 @@
   - Refactored ServiceCollectionExtensions: updated HttpClient configuration to use IOptions<GroqOptions> from service provider.
   - Verified build succeeds with no errors.
   Notes: All configuration now uses strongly-typed Options Pattern with compile-time safety, IntelliSense support, and fail-fast validation at startup. Eliminates magic strings, improves testability, and follows .NET best practices.
+
+- Timestamp: 2026-02-15T19:30:00+01:00
+  Request: Fix invisible navigation link to Profiles page on Admin page.
+  Actions:
+  - Fixed AdminLayout nav link classes: changed `text-ink` to `text-bone` so links are visible on the dark (`bg-ink`) background.
+  - Renamed "Main" nav link to "Profiles" for clarity.
+
+- Timestamp: 2026-02-15T19:45:00+01:00
+  Request: Change Admin page background to a color similar to Profiles page but darker.
+  Actions:
+  - Added `sand` color (`#d9d2c5`) to Tailwind config — a darker warm tone of `bone`.
+  - Updated AdminLayout background from `bg-ink` to `bg-sand` with `text-ink` for dark text.
+  - Updated AdminPage card to use `bg-bone` with `text-ink` and `bg-sand/50` for inner container.
+  - Adjusted all opacity/border classes for legibility on the lighter background.
