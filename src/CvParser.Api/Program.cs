@@ -1,17 +1,6 @@
 using CvParser.Api.Extensions;
-using CvParser.Api.Models.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddOptions<GroqOptions>()
-    .BindConfiguration(GroqOptions.SectionName)
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-
-builder.Services.AddOptions<FileValidationOptions>()
-    .BindConfiguration(FileValidationOptions.SectionName)
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -27,7 +16,7 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 

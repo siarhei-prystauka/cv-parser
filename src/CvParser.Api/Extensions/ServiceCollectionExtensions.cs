@@ -13,10 +13,18 @@ namespace CvParser.Api.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddOptions<GroqOptions>()
+            .BindConfiguration(GroqOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<FileValidationOptions>()
+            .BindConfiguration(FileValidationOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddScoped<ICvTextExtractor, PdfTextExtractor>();
         // TODO: Register DocxTextExtractor when DOCX support is implemented (see GitHub issue #5)
         // services.AddScoped<ICvTextExtractor, DocxTextExtractor>();

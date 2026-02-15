@@ -206,3 +206,12 @@
   - Updated AdminLayout background from `bg-ink` to `bg-sand` with `text-ink` for dark text.
   - Updated AdminPage card to use `bg-bone` with `text-ink` and `bg-sand/50` for inner container.
   - Adjusted all opacity/border classes for legibility on the lighter background.
+
+- Timestamp: 2026-02-15T20:00:00+01:00
+  Request: Centralize options registration by moving it into AddApplicationServices extension method.
+  Actions:
+  - Moved GroqOptions and FileValidationOptions registration (BindConfiguration, ValidateDataAnnotations, ValidateOnStart) from Program.cs into ServiceCollectionExtensions.AddApplicationServices.
+  - Removed unused IConfiguration parameter from AddApplicationServices method signature.
+  - Removed CvParser.Api.Models.Options using and options registration block from Program.cs.
+  - Updated call site in Program.cs to parameterless AddApplicationServices().
+  Notes: Build succeeds with 0 warnings, 0 errors. DI setup is now fully centralized in the extension method.
