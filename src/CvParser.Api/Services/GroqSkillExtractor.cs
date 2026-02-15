@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CvParser.Api.Models.Options;
+using Microsoft.Extensions.Options;
 
 namespace CvParser.Api.Services;
 
@@ -10,18 +12,18 @@ namespace CvParser.Api.Services;
 public class GroqSkillExtractor : ILlmSkillExtractor
 {
     private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
+    private readonly GroqOptions _options;
     private readonly ILogger<GroqSkillExtractor> _logger;
 
     private const string SystemPrompt = @"You are a CV skill extraction assistant. Extract technical skills from the provided CV text and return them as a JSON array of strings. Focus on hard skills like programming languages, frameworks, tools, databases, cloud platforms, and certifications. Exclude soft skills and general terms. Return only the JSON object in this exact format: {""skills"": [""skill1"", ""skill2"", ""skill3""]}";
 
     public GroqSkillExtractor(
         HttpClient httpClient,
-        IConfiguration configuration,
+        IOptions<GroqOptions> options,
         ILogger<GroqSkillExtractor> logger)
     {
         _httpClient = httpClient;
-        _configuration = configuration;
+        _options = options.Value;
         _logger = logger;
     }
 
@@ -33,28 +35,9 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             return Enumerable.Empty<string>();
         }
 
-        var apiKey = _configuration["Groq:ApiKey"];
-        if (string.IsNullOrWhiteSpace(apiKey))
-        {
-            throw new InvalidOperationException("Groq API key is not configured. Set the Groq:ApiKey configuration value.");
-        }
-
-        apiKey = apiKey.Trim();
+        var apiKey = _options.ApiKey.Trim();
 
         _logger.LogDebug("Groq API key is configured.");
-
-        var model = _configuration["Groq:Model"] ?? "llama-3.1-8b-instant";
-        
-        var maxTokensConfig = _configuration["Groq:MaxTokens"];
-        var maxTokens = 1000;
-        if (maxTokensConfig is not null && !int.TryParse(maxTokensConfig, out maxTokens))
-        {
-            _logger.LogWarning(
-                "Invalid Groq:MaxTokens configuration value: {Value}. Falling back to default {DefaultMaxTokens}.",
-                maxTokensConfig,
-                1000);
-            maxTokens = 1000;
-        }
 
         try
         {
@@ -68,14 +51,14 @@ public class GroqSkillExtractor : ILlmSkillExtractor
 
             var request = new GroqRequest
             {
-                Model = model,
+                Model = _options.Model,
                 Messages = new[]
                 {
                     new GroqMessage { Role = "system", Content = SystemPrompt },
                     new GroqMessage { Role = "user", Content = $"CV Text:\n{truncatedText}" }
                 },
                 ResponseFormat = new { type = "json_object" },
-                MaxTokens = maxTokens,
+                MaxTokens = _options.MaxTokens,
                 Temperature = 0.1
             };
 
@@ -93,7 +76,7 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
             var fullUrl = $"{_httpClient.BaseAddress}chat/completions";
-            _logger.LogInformation("Sending request to Groq API: {Url} with model {Model}", fullUrl, model);
+            _logger.LogInformation("Sending request to Groq API: {Url} with model {Model}", fullUrl, _options.Model);
 
             using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
             

@@ -1,6 +1,8 @@
 using CvParser.Api.Converters;
+using CvParser.Api.Models.Options;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 
@@ -11,28 +13,36 @@ namespace CvParser.Api.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddOptions<GroqOptions>()
+            .BindConfiguration(GroqOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<FileValidationOptions>()
+            .BindConfiguration(FileValidationOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddScoped<ICvTextExtractor, PdfTextExtractor>();
         // TODO: Register DocxTextExtractor when DOCX support is implemented (see GitHub issue #5)
         // services.AddScoped<ICvTextExtractor, DocxTextExtractor>();
 
         services.AddScoped<ICvTextExtractorFactory, CvTextExtractorFactory>();
 
-        services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>(client =>
+        services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>((serviceProvider, client) =>
         {
-            var baseUrl = configuration["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
+            var groqOptions = serviceProvider.GetRequiredService<IOptions<GroqOptions>>().Value;
+            
+            var baseUrl = groqOptions.BaseUrl;
             // Ensure trailing slash for proper URI combining
             if (!baseUrl.EndsWith('/'))
             {
                 baseUrl += "/";
             }
             client.BaseAddress = new Uri(baseUrl);
-
-            var timeoutSeconds = configuration.GetValue<int>("Groq:TimeoutSeconds", 30);
-            client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+            client.Timeout = TimeSpan.FromSeconds(groqOptions.TimeoutSeconds);
         })
         .AddPolicyHandler(GetRetryPolicy());
 

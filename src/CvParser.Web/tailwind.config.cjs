@@ -10,6 +10,7 @@ module.exports = {
       colors: {
         ink: '#0f1419',
         bone: '#f5f1e8',
+        sand: '#d9d2c5',
         ocean: '#0f3d3e',
         ember: '#e4572e',
         moss: '#3a5a40',

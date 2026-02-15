@@ -1,10 +1,12 @@
 using CvParser.Api.Converters;
 using CvParser.Api.Models;
+using CvParser.Api.Models.Options;
 using CvParser.Api.Models.Requests;
 using CvParser.Api.Models.Responses;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CvParser.Api.Controllers;
 
@@ -19,18 +21,18 @@ public class ProfilesController : ControllerBase
     private readonly IProfileRepository _repository;
     private readonly ICvSkillExtractor _extractor;
     private readonly IProfileConverter _converter;
-    private readonly IConfiguration _configuration;
+    private readonly FileValidationOptions _fileValidationOptions;
 
     public ProfilesController(
         IProfileRepository repository,
         ICvSkillExtractor extractor,
         IProfileConverter converter,
-        IConfiguration configuration)
+        IOptions<FileValidationOptions> fileValidationOptions)
     {
         _repository = repository;
         _extractor = extractor;
         _converter = converter;
-        _configuration = configuration;
+        _fileValidationOptions = fileValidationOptions.Value;
     }
 
     /// <summary>
@@ -125,16 +127,12 @@ public class ProfilesController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var maxFileSizeBytes = _configuration.GetValue<long>("FileValidation:MaxFileSizeBytes", 10485760);
-        if (file.Length > maxFileSizeBytes)
+        if (file.Length > _fileValidationOptions.MaxFileSizeBytes)
         {
-            var maxSizeMb = maxFileSizeBytes / 1024.0 / 1024.0;
+            var maxSizeMb = _fileValidationOptions.MaxFileSizeBytes / 1024.0 / 1024.0;
             ModelState.AddModelError("cvFile", $"File size exceeds the maximum allowed size of {maxSizeMb:F1} MB.");
             return ValidationProblem(ModelState);
         }
-
-        var supportedContentTypes = _configuration.GetSection("FileValidation:SupportedContentTypes")
-            .Get<string[]>() ?? ["application/pdf"];
 
         var contentTypeExtensionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -143,14 +141,14 @@ public class ProfilesController : ControllerBase
         };
 
         var extension = Path.GetExtension(file.FileName);
-        var isSupported = supportedContentTypes.Any(ct =>
+        var isSupported = _fileValidationOptions.SupportedContentTypes.Any(ct =>
             string.Equals(file.ContentType, ct, StringComparison.OrdinalIgnoreCase) ||
             (contentTypeExtensionMap.TryGetValue(ct, out var ext) &&
              string.Equals(extension, ext, StringComparison.OrdinalIgnoreCase)));
 
         if (!isSupported)
         {
-            var supportedExtensions = supportedContentTypes
+            var supportedExtensions = _fileValidationOptions.SupportedContentTypes
                 .Where(ct => contentTypeExtensionMap.ContainsKey(ct))
                 .Select(ct => contentTypeExtensionMap[ct].ToUpperInvariant())
                 .ToList();
