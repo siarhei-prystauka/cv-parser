@@ -28,7 +28,7 @@ public class GroqSkillExtractor : ILlmSkillExtractor
     /// <summary>
     /// Extracts skills from CV text using Groq's Llama model.
     /// </summary>
-    public async Task<IEnumerable<string>> ExtractSkillsAsync(string cvText)
+    public async Task<IEnumerable<string>> ExtractSkillsAsync(string cvText, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(cvText))
         {
@@ -45,19 +45,32 @@ public class GroqSkillExtractor : ILlmSkillExtractor
         // Trim whitespace that might have been accidentally added
         apiKey = apiKey.Trim();
         
-        // Debug: Log first/last 4 characters to verify key is loaded (don't log full key!)
-        _logger.LogDebug("API Key loaded: {Prefix}...{Suffix} (length: {Length})", 
-            apiKey[..Math.Min(4, apiKey.Length)], 
-            apiKey.Length > 4 ? apiKey[^4..] : "", 
-            apiKey.Length);
+        // Debug: Confirm that an API key is configured without logging any part of it
+        _logger.LogDebug("Groq API key is configured.");
 
         var model = _configuration["Groq:Model"] ?? "llama-3.1-8b-instant";
-        var maxTokens = int.Parse(_configuration["Groq:MaxTokens"] ?? "1000");
+        
+        var maxTokensConfig = _configuration["Groq:MaxTokens"];
+        var maxTokens = 1000;
+        if (maxTokensConfig is not null && !int.TryParse(maxTokensConfig, out maxTokens))
+        {
+            _logger.LogWarning(
+                "Invalid Groq:MaxTokens configuration value: {Value}. Falling back to default {DefaultMaxTokens}.",
+                maxTokensConfig,
+                1000);
+            maxTokens = 1000;
+        }
 
         try
         {
             // Truncate CV text if too long (keep first 3000 chars to stay within token limits)
             var truncatedText = cvText.Length > 3000 ? cvText[..3000] : cvText;
+            
+            if (cvText.Length > 3000)
+            {
+                _logger.LogWarning("CV text truncated from {OriginalLength} to {TruncatedLength} characters for LLM processing",
+                    cvText.Length, 3000);
+            }
 
             var request = new GroqRequest
             {
@@ -88,7 +101,7 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             var fullUrl = $"{_httpClient.BaseAddress}chat/completions";
             _logger.LogInformation("Sending request to Groq API: {Url} with model {Model}", fullUrl, model);
 
-            var response = await _httpClient.SendAsync(httpRequest);
+            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
             
             if (!response.IsSuccessStatusCode)
             {

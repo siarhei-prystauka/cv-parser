@@ -25,7 +25,7 @@ public sealed class MockCvSkillExtractor : ICvSkillExtractor
     ];
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<string>> ExtractSkillsAsync(Stream fileStream, string fileName, string contentType)
+    public Task<IReadOnlyList<string>> ExtractSkillsAsync(Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken = default)
     {
         var seed = BuildSeed(fileStream, fileName);
         var random = new Random(seed);

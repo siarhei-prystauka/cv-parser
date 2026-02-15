@@ -5,14 +5,14 @@ namespace CvParser.Api.Services;
 /// </summary>
 public class CvTextExtractorFactory
 {
-    private readonly PdfTextExtractor _pdfExtractor;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CvTextExtractorFactory> _logger;
 
     public CvTextExtractorFactory(
-        PdfTextExtractor pdfExtractor,
+        IServiceProvider serviceProvider,
         ILogger<CvTextExtractorFactory> logger)
     {
-        _pdfExtractor = pdfExtractor;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -26,13 +26,15 @@ public class CvTextExtractorFactory
     {
         _logger.LogDebug("Getting extractor for content type: {ContentType}", contentType);
 
-        return contentType switch
+        ICvTextExtractor extractor = contentType switch
         {
-            "application/pdf" => _pdfExtractor,
+            "application/pdf" => _serviceProvider.GetRequiredService<PdfTextExtractor>(),
             // TODO: Add DOCX support (see GitHub issue for DOCX extraction)
-            // "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => _docxExtractor,
+            // "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => _serviceProvider.GetRequiredService<DocxTextExtractor>(),
             _ => throw new NotSupportedException($"Content type '{contentType}' is not supported. Currently only PDF files are supported.")
         };
+
+        return extractor;
     }
 
     /// <summary>

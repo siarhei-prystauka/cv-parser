@@ -101,7 +101,7 @@ public class ProfilesController : ControllerBase
         }
 
         await using var fileStream = cvFile.OpenReadStream();
-        var skills = await _extractor.ExtractSkillsAsync(fileStream, cvFile.FileName, cvFile.ContentType);
+        var skills = await _extractor.ExtractSkillsAsync(fileStream, cvFile.FileName, cvFile.ContentType, cancellationToken);
         var response = new CvPreviewResponse(cvFile.FileName, skills);
 
         return Ok(response);
@@ -145,7 +145,7 @@ public class ProfilesController : ControllerBase
     {
         if (file is null || file.Length == 0)
         {
-            ModelState.AddModelError("cvFile", "A PDF file is required.");
+            ModelState.AddModelError("cvFile", "A CV file is required.");
             return ValidationProblem(ModelState);
         }
 

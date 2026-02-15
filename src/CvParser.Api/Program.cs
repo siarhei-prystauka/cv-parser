@@ -80,11 +80,13 @@ app.Run();
 
 /// <summary>
 /// Gets a retry policy for resilient HTTP calls to Groq API.
+/// Handles transient errors (5xx, 408) and rate limiting (429).
 /// </summary>
 static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
 {
     return HttpPolicyExtensions
         .HandleTransientHttpError()
+        .OrResult(response => response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
         .WaitAndRetryAsync(new[]
         {
             TimeSpan.FromSeconds(1),

@@ -28,7 +28,11 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
     /// <summary>
     /// Extracts skills from a CV file using hybrid taxonomy-first approach.
     /// </summary>
-    public async Task<IReadOnlyList<string>> ExtractSkillsAsync(Stream cvFileStream, string fileName, string contentType)
+    public async Task<IReadOnlyList<string>> ExtractSkillsAsync(
+        Stream cvFileStream,
+        string fileName,
+        string contentType,
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Starting skill extraction for file: {FileName}, ContentType: {ContentType}", fileName, contentType);
 
@@ -54,7 +58,7 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
             _logger.LogInformation("Taxonomy matched {Count} skills", taxonomyMatches.Count());
 
             // Step 4: Use LLM for additional skill extraction
-            var llmSkills = await _llmExtractor.ExtractSkillsAsync(cvText);
+            var llmSkills = await _llmExtractor.ExtractSkillsAsync(cvText, cancellationToken);
             _logger.LogInformation("LLM extracted {Count} skills", llmSkills.Count());
 
             // Step 5: Merge and deduplicate results

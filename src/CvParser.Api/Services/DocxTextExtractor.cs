@@ -28,7 +28,7 @@ public class DocxTextExtractor : ICvTextExtractor
         try
         {
             // Open XML SDK requires a seekable stream
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
 

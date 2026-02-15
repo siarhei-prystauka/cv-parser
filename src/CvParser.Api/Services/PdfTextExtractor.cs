@@ -29,7 +29,7 @@ public class PdfTextExtractor : ICvTextExtractor
         try
         {
             // iText7 requires a seekable stream
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
 

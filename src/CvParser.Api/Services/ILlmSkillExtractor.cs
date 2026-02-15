@@ -9,6 +9,7 @@ public interface ILlmSkillExtractor
     /// Extracts skills from CV text using an LLM.
     /// </summary>
     /// <param name="cvText">The CV text to analyze.</param>
+    /// <param name="cancellationToken">Token used to observe cancellation requests.</param>
     /// <returns>A list of extracted skill names.</returns>
-    Task<IEnumerable<string>> ExtractSkillsAsync(string cvText);
+    Task<IEnumerable<string>> ExtractSkillsAsync(string cvText, CancellationToken cancellationToken = default);
 }
