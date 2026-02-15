@@ -7,13 +7,12 @@ applyTo: '**/*.cs'
 
 ## C# Instructions
 - Always use the latest version C#, currently C# 14 features.
-- Write clear and concise comments for each function.
+- Prefer self-documenting code over comments; use clear naming for types, methods, and variables.
 
 ## General Instructions
 - Make only high confidence suggestions when reviewing code changes.
-- Write code with good maintainability practices, including comments on why certain design decisions were made.
+- Write code with good maintainability practices.
 - Handle edge cases and write clear exception handling.
-- For libraries or external dependencies, mention their usage and purpose in comments.
 
 ## Naming Conventions
 
@@ -29,7 +28,7 @@ applyTo: '**/*.cs'
 - Ensure that the final return statement of a method is on its own line.
 - Use pattern matching and switch expressions wherever possible.
 - Use `nameof` instead of string literals when referring to member names.
-- Ensure that XML doc comments are created for any public APIs. When applicable, include `<example>` and `<code>` documentation in the comments.
+- Only add `/// <summary>` on public API controller actions (for Swagger); omit XML doc comments elsewhere.
 
 ## Project Setup and Structure
 
@@ -96,6 +95,15 @@ applyTo: '**/*.cs'
 - Demonstrate how to mock dependencies for effective testing.
 - Show how to test authentication and authorization logic.
 - Explain test-driven development principles as applied to API development.
+
+## Dependency Management
+
+- **Never use alpha, beta, or preview versions** of NuGet packages in production code
+- Always prefer stable, production-ready package versions
+- Check package download statistics and last update date to assess maintenance status
+- Verify package licenses comply with project requirements (prefer MIT, Apache 2.0, BSD)
+- Use specific version numbers in .csproj files for predictable builds
+- Regularly update packages to stable versions for security patches
 
 ## Performance Optimization
 

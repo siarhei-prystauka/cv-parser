@@ -1,0 +1,234 @@
+{
+  "skills": [
+    {
+      "name": ".NET",
+      "category": "framework",
+      "aliases": ["dotnet", "dot net", ".net framework", ".net core", "asp.net"]
+    },
+    {
+      "name": "C#",
+      "category": "language",
+      "aliases": ["csharp", "c sharp", "c-sharp"]
+    },
+    {
+      "name": "Java",
+      "category": "language",
+      "aliases": ["java programming"]
+    },
+    {
+      "name": "JavaScript",
+      "category": "language",
+      "aliases": ["js", "javascript programming", "ecmascript"]
+    },
+    {
+      "name": "TypeScript",
+      "category": "language",
+      "aliases": ["ts"]
+    },
+    {
+      "name": "Python",
+      "category": "language",
+      "aliases": ["python programming"]
+    },
+    {
+      "name": "React",
+      "category": "framework",
+      "aliases": ["reactjs", "react.js", "react js"]
+    },
+    {
+      "name": "Angular",
+      "category": "framework",
+      "aliases": ["angularjs", "angular.js"]
+    },
+    {
+      "name": "Vue.js",
+      "category": "framework",
+      "aliases": ["vue", "vuejs"]
+    },
+    {
+      "name": "Node.js",
+      "category": "framework",
+      "aliases": ["nodejs", "node"]
+    },
+    {
+      "name": "SQL Server",
+      "category": "database",
+      "aliases": ["ms sql server", "microsoft sql server", "mssql", "sql-server"]
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "database",
+      "aliases": ["postgres", "postgresql db"]
+    },
+    {
+      "name": "MySQL",
+      "category": "database",
+      "aliases": ["my sql"]
+    },
+    {
+      "name": "MongoDB",
+      "category": "database",
+      "aliases": ["mongo", "mongo db"]
+    },
+    {
+      "name": "Redis",
+      "category": "database",
+      "aliases": ["redis cache"]
+    },
+    {
+      "name": "Azure",
+      "category": "cloud",
+      "aliases": ["microsoft azure", "azure cloud"]
+    },
+    {
+      "name": "AWS",
+      "category": "cloud",
+      "aliases": ["amazon web services", "amazon aws"]
+    },
+    {
+      "name": "Docker",
+      "category": "tool",
+      "aliases": ["docker container", "docker containers"]
+    },
+    {
+      "name": "Kubernetes",
+      "category": "tool",
+      "aliases": ["k8s", "kubernetes orchestration"]
+    },
+    {
+      "name": "Git",
+      "category": "tool",
+      "aliases": ["git version control"]
+    },
+    {
+      "name": "REST API",
+      "category": "technology",
+      "aliases": ["rest", "restful api", "rest apis"]
+    },
+    {
+      "name": "GraphQL",
+      "category": "technology",
+      "aliases": ["graph ql"]
+    },
+    {
+      "name": "Entity Framework",
+      "category": "framework",
+      "aliases": ["ef", "ef core", "entity framework core"]
+    },
+    {
+      "name": "ASP.NET Core",
+      "category": "framework",
+      "aliases": ["asp.net", "aspnet core", "aspnetcore"]
+    },
+    {
+      "name": "Blazor",
+      "category": "framework",
+      "aliases": ["blazor webassembly", "blazor server"]
+    },
+    {
+      "name": "HTML",
+      "category": "language",
+      "aliases": ["html5"]
+    },
+    {
+      "name": "CSS",
+      "category": "language",
+      "aliases": ["css3", "cascading style sheets"]
+    },
+    {
+      "name": "RabbitMQ",
+      "category": "tool",
+      "aliases": ["rabbit mq", "rabbitmq messaging"]
+    },
+    {
+      "name": "Kafka",
+      "category": "tool",
+      "aliases": ["apache kafka"]
+    },
+    {
+      "name": "Jenkins",
+      "category": "tool",
+      "aliases": ["jenkins ci", "jenkins cd"]
+    },
+    {
+      "name": "CI/CD",
+      "category": "practice",
+      "aliases": ["continuous integration", "continuous deployment", "cicd"]
+    },
+    {
+      "name": "Terraform",
+      "category": "tool",
+      "aliases": ["terraform iac"]
+    },
+    {
+      "name": "Microservices",
+      "category": "architecture",
+      "aliases": ["microservices architecture", "micro services"]
+    },
+    {
+      "name": "OAuth",
+      "category": "technology",
+      "aliases": ["oauth2", "oauth 2.0"]
+    },
+    {
+      "name": "JWT",
+      "category": "technology",
+      "aliases": ["json web token", "json web tokens"]
+    },
+    {
+      "name": "SOLID",
+      "category": "principle",
+      "aliases": ["solid principles"]
+    },
+    {
+      "name": "Design Patterns",
+      "category": "principle",
+      "aliases": ["software design patterns", "gof patterns"]
+    },
+    {
+      "name": "Test-Driven Development",
+      "category": "practice",
+      "aliases": ["tdd", "test driven development"]
+    },
+    {
+      "name": "NUnit",
+      "category": "testing",
+      "aliases": ["nunit testing"]
+    },
+    {
+      "name": "xUnit",
+      "category": "testing",
+      "aliases": ["xunit testing"]
+    },
+    {
+      "name": "Jest",
+      "category": "testing",
+      "aliases": ["jestjs"]
+    },
+    {
+      "name": "Moq",
+      "category": "testing",
+      "aliases": ["moq framework"]
+    },
+    {
+      "name": "Scrum",
+      "category": "methodology",
+      "aliases": ["scrum methodology"]
+    },
+    {
+      "name": "Agile",
+      "category": "methodology",
+      "aliases": ["agile methodology", "agile development"]
+    },
+    {
+      "name": "Linux",
+      "category": "platform",
+      "aliases": ["linux os", "unix"]
+    },
+    {
+      "name": "Windows Server",
+      "category": "platform",
+      "aliases": ["windows", "microsoft windows server"]
+    }
+  ]
+}

@@ -3,14 +3,13 @@ using CvParser.Api.Models;
 namespace CvParser.Api.Repositories;
 
 /// <summary>
-/// Stores profiles in memory for local development.
+/// In-memory profile store for local development.
 /// </summary>
 public sealed class InMemoryProfileRepository : IProfileRepository
 {
     private readonly List<EmployeeProfile> _profiles = BuildSeedProfiles();
     private readonly object _lock = new();
 
-    /// <inheritdoc />
     public IReadOnlyList<EmployeeProfile> GetAll()
     {
         lock (_lock)
@@ -19,7 +18,6 @@ public sealed class InMemoryProfileRepository : IProfileRepository
         }
     }
 
-    /// <inheritdoc />
     public EmployeeProfile? GetById(Guid id)
     {
         lock (_lock)
@@ -29,7 +27,6 @@ public sealed class InMemoryProfileRepository : IProfileRepository
         }
     }
 
-    /// <inheritdoc />
     public EmployeeProfile? UpdateSkills(Guid id, IReadOnlyList<string> skills)
     {
         lock (_lock)
@@ -45,9 +42,6 @@ public sealed class InMemoryProfileRepository : IProfileRepository
         }
     }
 
-    /// <summary>
-    /// Builds deterministic seed data for local development.
-    /// </summary>
     private static List<EmployeeProfile> BuildSeedProfiles()
     {
         return
@@ -127,9 +121,6 @@ public sealed class InMemoryProfileRepository : IProfileRepository
         ];
     }
 
-    /// <summary>
-    /// Creates a defensive copy to avoid mutating stored data.
-    /// </summary>
     private static EmployeeProfile CloneProfile(EmployeeProfile profile)
     {
         return new EmployeeProfile

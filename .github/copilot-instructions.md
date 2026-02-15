@@ -18,8 +18,23 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 - Use environment-specific configuration files
 - Follow SOLID principles
 - Write clean, self-documenting code
-- Add comments for complex logic only
-- Include XML documentation comments for all public APIs
+
+## Comments Policy
+- Code should be readable without comments; prefer clear naming over explanatory comments
+- Add comments for very complex logic only
+- **Do** add concise `/// <summary>` on classes and public API controller actions (used by Swagger)
+- **Do not** add XML doc comments on properties, private methods, or records unless they are non-obvious
+- **Do** add inline comments only when explaining **why**, never **what**
+- Keep TODO comments for actionable future work
+- Never add `/// <param>`, `/// <returns>`, `/// <response>`, or `/// <inheritdoc />` tags
+
+## Dependencies and Package Management
+- **Never use alpha, beta, or preview versions** of NuGet packages or npm packages
+- Always use stable, production-ready versions
+- Check package stability and maintenance status before adoption
+- Prefer well-established libraries with active communities
+- Review package licenses for compatibility with project requirements
+- Keep dependencies up to date with stable releases
 
 ## Testing
 - Write unit tests for business logic

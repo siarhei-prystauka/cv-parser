@@ -24,6 +24,9 @@ export const CvUploadDialog = ({ isOpen, profile, onClose, onProfileUpdated }: C
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const MAX_FILE_SIZE_MB = 10
+  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
   const skillsList = useMemo(
     () => toSkillList(skillsText),
     [skillsText]
@@ -51,6 +54,38 @@ export const CvUploadDialog = ({ isOpen, profile, onClose, onProfileUpdated }: C
   const handleClose = () => {
     resetState()
     onClose()
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null
+    
+    if (!file) {
+      setSelectedFile(null)
+      setError(null)
+      return
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setError(`File size exceeds the maximum allowed size of ${MAX_FILE_SIZE_MB} MB`)
+      setSelectedFile(null)
+      event.currentTarget.value = ''
+      return
+    }
+
+    // Validate file type by MIME type or extension (some browsers report empty/incorrect MIME)
+    const fileExtension = file.name.split('.').pop()?.toLowerCase()
+    const isValidType = file.type === 'application/pdf' || fileExtension === 'pdf'
+
+    if (!isValidType) {
+      setError('Only PDF file format is supported')
+      setSelectedFile(null)
+      event.currentTarget.value = ''
+      return
+    }
+
+    setSelectedFile(file)
+    setError(null)
   }
 
   const handlePreview = async () => {
@@ -126,13 +161,18 @@ export const CvUploadDialog = ({ isOpen, profile, onClose, onProfileUpdated }: C
 
                 <div className="mt-6 space-y-5">
                   <div className="rounded-2xl border border-dashed border-ink/20 bg-white/60 p-4">
-                    <label className="block text-sm font-medium text-ink">PDF file only</label>
+                    <label className="block text-sm font-medium text-ink">CV file (PDF only)</label>
                     <input
                       type="file"
-                      accept="application/pdf"
+                      accept="application/pdf,.pdf"
                       className="mt-3 w-full text-sm text-ink/70 file:mr-4 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-sm file:font-semibold file:text-bone"
-                      onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+                      onChange={handleFileChange}
                     />
+                    {selectedFile && (
+                      <p className="mt-2 text-xs text-ink/60">
+                        Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                      </p>
+                    )}
                     <button
                       type="button"
                       className="mt-4 inline-flex items-center rounded-full bg-ocean px-4 py-2 text-sm font-semibold text-bone transition hover:bg-ocean/90 disabled:cursor-not-allowed disabled:opacity-60"

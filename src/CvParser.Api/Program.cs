@@ -1,17 +1,13 @@
-using CvParser.Api.Converters;
-using CvParser.Api.Repositories;
-using CvParser.Api.Services;
+using CvParser.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new() { Title = "CV Parser API", Version = "v1" });
-    
-    // Include XML comments for better documentation
+
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
@@ -20,25 +16,10 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-// Register application services
-builder.Services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
-builder.Services.AddScoped<ICvSkillExtractor, MockCvSkillExtractor>();
-builder.Services.AddScoped<IProfileConverter, ProfileConverter>();
-
-// Configure CORS for development
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+builder.Services.AddApplicationServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

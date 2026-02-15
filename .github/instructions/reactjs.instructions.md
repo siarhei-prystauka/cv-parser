@@ -114,6 +114,18 @@ Instructions for building high-quality ReactJS applications with modern patterns
 - Mock external dependencies and API calls appropriately
 - Test accessibility features and keyboard navigation
 
+### Dependency Management
+- **Never use alpha, beta, or experimental versions** of npm packages in production code
+- Always prefer stable, production-ready package versions with semantic versioning
+- Check package popularity (weekly downloads), last update date, and maintenance status
+- Review package licenses for compatibility with project requirements
+- Use exact versions (`"react": "19.0.0"`) or specific ranges for critical dependencies
+- Regularly audit dependencies for security vulnerabilities using `npm audit`
+- Keep dependencies up to date with stable releases only
+- Document why each major dependency is included and its purpose
+- Prefer well-established libraries with active communities and good documentation
+- Minimize dependency count to reduce bundle size and security surface
+
 ### Security
 - Sanitize user inputs to prevent XSS attacks
 - Validate and escape data before rendering
@@ -142,7 +154,7 @@ Instructions for building high-quality ReactJS applications with modern patterns
 9. Add testing coverage for components and functionality
 10. Optimize performance and bundle size
 11. Ensure accessibility compliance
-12. Add documentation and code comments
+12. Use self-documenting code instead of comments
 
 ## Additional Guidelines
 - Follow React's naming conventions (PascalCase for components, camelCase for functions)
@@ -150,7 +162,6 @@ Instructions for building high-quality ReactJS applications with modern patterns
 - Implement proper code splitting and lazy loading strategies
 - Document complex components and custom hooks with JSDoc
 - Use ESLint and Prettier for consistent code formatting
-- Keep dependencies up to date and audit for security vulnerabilities
 - Implement proper environment configuration for different deployment stages
 - Use React Developer Tools for debugging and performance analysis
 

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CvParser.Api.Controllers;
 
 /// <summary>
-/// Manages employee profile operations including CV upload and skill extraction.
+/// Manages employee profiles, CV upload, and skill extraction.
 /// </summary>
 [ApiController]
 [Route("api/v1/Profiles")]
@@ -19,24 +19,23 @@ public class ProfilesController : ControllerBase
     private readonly IProfileRepository _repository;
     private readonly ICvSkillExtractor _extractor;
     private readonly IProfileConverter _converter;
+    private readonly IConfiguration _configuration;
 
-    /// <summary>
-    /// Initializes a new instance of the ProfilesController.
-    /// </summary>
     public ProfilesController(
         IProfileRepository repository,
         ICvSkillExtractor extractor,
-        IProfileConverter converter)
+        IProfileConverter converter,
+        IConfiguration configuration)
     {
         _repository = repository;
         _extractor = extractor;
         _converter = converter;
+        _configuration = configuration;
     }
 
     /// <summary>
     /// Retrieves all employee profiles.
     /// </summary>
-    /// <returns>A list of profile summaries.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProfileSummary>), StatusCodes.Status200OK)]
     public ActionResult<IEnumerable<ProfileSummary>> GetProfiles()
@@ -48,10 +47,6 @@ public class ProfilesController : ControllerBase
     /// <summary>
     /// Retrieves a specific employee profile by ID.
     /// </summary>
-    /// <param name="id">The profile identifier.</param>
-    /// <returns>The profile details.</returns>
-    /// <response code="200">Returns the profile details.</response>
-    /// <response code="404">If the profile is not found.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ProfileDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,13 +64,6 @@ public class ProfilesController : ControllerBase
     /// <summary>
     /// Previews skills extracted from an uploaded CV without saving.
     /// </summary>
-    /// <param name="id">The profile identifier.</param>
-    /// <param name="cvFile">The CV file (PDF only).</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Extracted skills for preview.</returns>
-    /// <response code="200">Returns extracted skills.</response>
-    /// <response code="400">If the file is invalid or not a PDF.</response>
-    /// <response code="404">If the profile is not found.</response>
     [HttpPost("{id:guid}/cv/preview")]
     [ProducesResponseType(typeof(CvPreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -91,14 +79,14 @@ public class ProfilesController : ControllerBase
             return NotFound();
         }
 
-        var validationResult = ValidatePdfFile(cvFile);
+        var validationResult = ValidateCvFile(cvFile);
         if (validationResult is not null)
         {
             return validationResult;
         }
 
         await using var fileStream = cvFile.OpenReadStream();
-        var skills = await _extractor.ExtractSkillsAsync(fileStream, cvFile.FileName, cancellationToken);
+        var skills = await _extractor.ExtractSkillsAsync(fileStream, cvFile.FileName, cvFile.ContentType, cancellationToken);
         var response = new CvPreviewResponse(cvFile.FileName, skills);
 
         return Ok(response);
@@ -107,12 +95,6 @@ public class ProfilesController : ControllerBase
     /// <summary>
     /// Updates the skills for a profile after user confirmation.
     /// </summary>
-    /// <param name="id">The profile identifier.</param>
-    /// <param name="request">The skills to save.</param>
-    /// <returns>The updated profile.</returns>
-    /// <response code="200">Returns the updated profile.</response>
-    /// <response code="400">If the skills payload is invalid.</response>
-    /// <response code="404">If the profile is not found.</response>
     [HttpPut("{id:guid}/skills")]
     [ProducesResponseType(typeof(ProfileDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -135,33 +117,51 @@ public class ProfilesController : ControllerBase
         return Ok(_converter.ToDetail(updated));
     }
 
-    /// <summary>
-    /// Validates that the provided file is a non-empty PDF.
-    /// </summary>
-    private ActionResult? ValidatePdfFile(IFormFile? file)
+    private ActionResult? ValidateCvFile(IFormFile? file)
     {
         if (file is null || file.Length == 0)
         {
-            ModelState.AddModelError("cvFile", "A PDF file is required.");
+            ModelState.AddModelError("cvFile", "A CV file is required.");
             return ValidationProblem(ModelState);
         }
 
-        var extension = Path.GetExtension(file.FileName);
-        var isPdf = string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(file.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase);
-
-        if (!isPdf)
+        var maxFileSizeBytes = _configuration.GetValue<long>("FileValidation:MaxFileSizeBytes", 10485760);
+        if (file.Length > maxFileSizeBytes)
         {
-            ModelState.AddModelError("cvFile", "Only PDF uploads are supported.");
+            var maxSizeMb = maxFileSizeBytes / 1024.0 / 1024.0;
+            ModelState.AddModelError("cvFile", $"File size exceeds the maximum allowed size of {maxSizeMb:F1} MB.");
+            return ValidationProblem(ModelState);
+        }
+
+        var supportedContentTypes = _configuration.GetSection("FileValidation:SupportedContentTypes")
+            .Get<string[]>() ?? ["application/pdf"];
+
+        var contentTypeExtensionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["application/pdf"] = ".pdf",
+            ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"] = ".docx"
+        };
+
+        var extension = Path.GetExtension(file.FileName);
+        var isSupported = supportedContentTypes.Any(ct =>
+            string.Equals(file.ContentType, ct, StringComparison.OrdinalIgnoreCase) ||
+            (contentTypeExtensionMap.TryGetValue(ct, out var ext) &&
+             string.Equals(extension, ext, StringComparison.OrdinalIgnoreCase)));
+
+        if (!isSupported)
+        {
+            var supportedExtensions = supportedContentTypes
+                .Where(ct => contentTypeExtensionMap.ContainsKey(ct))
+                .Select(ct => contentTypeExtensionMap[ct].ToUpperInvariant())
+                .ToList();
+            var formatsText = string.Join(", ", supportedExtensions);
+            ModelState.AddModelError("cvFile", $"Unsupported file format. Supported formats: {formatsText}.");
             return ValidationProblem(ModelState);
         }
 
         return null;
     }
 
-    /// <summary>
-    /// Validates the skills update payload.
-    /// </summary>
     private ActionResult? ValidateSkills(UpdateSkillsRequest request)
     {
         if (request.Skills is null || request.Skills.Count == 0)
@@ -179,9 +179,6 @@ public class ProfilesController : ControllerBase
         return null;
     }
 
-    /// <summary>
-    /// Normalizes skills for consistent storage.
-    /// </summary>
     private static IReadOnlyList<string> NormalizeSkills(IEnumerable<string> skills)
     {
         return skills
