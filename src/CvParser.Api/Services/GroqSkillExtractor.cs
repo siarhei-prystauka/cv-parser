@@ -100,8 +100,9 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Groq API returned {StatusCode}: {Error}", response.StatusCode, errorContent);
-                throw new InvalidOperationException($"Groq API error: {response.StatusCode} - {errorContent}");
+                var correlationId = Guid.NewGuid().ToString("D");
+                _logger.LogError("Groq API returned {StatusCode} with CorrelationId {CorrelationId}: {Error}", response.StatusCode, correlationId, errorContent);
+                throw new InvalidOperationException($"Groq API error. StatusCode: {response.StatusCode}, CorrelationId: {correlationId}");
             }
 
             var responseContent = await response.Content.ReadAsStringAsync();
