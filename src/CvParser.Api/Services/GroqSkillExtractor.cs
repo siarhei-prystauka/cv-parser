@@ -1,8 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CvParser.Api.Models.Options;
-using Microsoft.Extensions.Options;
+using CvParser.Api.Repositories;
 
 namespace CvParser.Api.Services;
 
@@ -12,18 +11,18 @@ namespace CvParser.Api.Services;
 public class GroqSkillExtractor : ILlmSkillExtractor
 {
     private readonly HttpClient _httpClient;
-    private readonly GroqOptions _options;
+    private readonly ISettingsRepository _settingsRepository;
     private readonly ILogger<GroqSkillExtractor> _logger;
 
     private const string SystemPrompt = @"You are a CV skill extraction assistant. Extract technical skills from the provided CV text and return them as a JSON array of strings. Focus on hard skills like programming languages, frameworks, tools, databases, cloud platforms, and certifications. Exclude soft skills and general terms. Return only the JSON object in this exact format: {""skills"": [""skill1"", ""skill2"", ""skill3""]}";
 
     public GroqSkillExtractor(
         HttpClient httpClient,
-        IOptions<GroqOptions> options,
+        ISettingsRepository settingsRepository,
         ILogger<GroqSkillExtractor> logger)
     {
         _httpClient = httpClient;
-        _options = options.Value;
+        _settingsRepository = settingsRepository;
         _logger = logger;
     }
 
@@ -35,7 +34,8 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             return Enumerable.Empty<string>();
         }
 
-        var apiKey = _options.ApiKey.Trim();
+        var options = await _settingsRepository.GetGroqOptionsAsync();
+        var apiKey = options.ApiKey.Trim();
 
         _logger.LogDebug("Groq API key is configured.");
 
@@ -51,14 +51,14 @@ public class GroqSkillExtractor : ILlmSkillExtractor
 
             var request = new GroqRequest
             {
-                Model = _options.Model,
+                Model = options.Model,
                 Messages = new[]
                 {
                     new GroqMessage { Role = "system", Content = SystemPrompt },
                     new GroqMessage { Role = "user", Content = $"CV Text:\n{truncatedText}" }
                 },
                 ResponseFormat = new { type = "json_object" },
-                MaxTokens = _options.MaxTokens,
+                MaxTokens = options.MaxTokens,
                 Temperature = 0.1
             };
 
@@ -76,7 +76,7 @@ public class GroqSkillExtractor : ILlmSkillExtractor
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
             var fullUrl = $"{_httpClient.BaseAddress}chat/completions";
-            _logger.LogInformation("Sending request to Groq API: {Url} with model {Model}", fullUrl, _options.Model);
+            _logger.LogInformation("Sending request to Groq API: {Url} with model {Model}", fullUrl, options.Model);
 
             using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
             

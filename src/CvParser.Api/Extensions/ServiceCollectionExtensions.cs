@@ -25,6 +25,13 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<SkillExtractionOptions>()
+            .BindConfiguration(SkillExtractionOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddSingleton<ISettingsRepository, InMemorySettingsRepository>();
+
         services.AddScoped<ICvTextExtractor, PdfTextExtractor>();
         // TODO: Register DocxTextExtractor when DOCX support is implemented (see GitHub issue #5)
         // services.AddScoped<ICvTextExtractor, DocxTextExtractor>();
@@ -34,7 +41,6 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>((serviceProvider, client) =>
         {
             var groqOptions = serviceProvider.GetRequiredService<IOptions<GroqOptions>>().Value;
-            
             var baseUrl = groqOptions.BaseUrl;
             // Ensure trailing slash for proper URI combining
             if (!baseUrl.EndsWith('/'))
@@ -49,6 +55,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
         services.AddScoped<ICvSkillExtractor, HybridCvSkillExtractor>();
         services.AddScoped<IProfileConverter, ProfileConverter>();
+        
+        services.AddSingleton<ITaxonomyService, TaxonomyService>();
 
         services.AddCors(options =>
         {
