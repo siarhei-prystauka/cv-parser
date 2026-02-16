@@ -1,7 +1,9 @@
+using System;
 using CvParser.Api.Converters;
 using CvParser.Api.Models.Options;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
@@ -13,8 +15,10 @@ namespace CvParser.Api.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
         services.AddOptions<GroqOptions>()
             .BindConfiguration(GroqOptions.SectionName)
             .ValidateDataAnnotations()
@@ -62,9 +66,15 @@ public static class ServiceCollectionExtensions
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("http://localhost:5173")
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
+                if (allowedOrigins.Length > 0)
+                {
+                    policy.WithOrigins(allowedOrigins)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    return;
+                }
+
+                policy.SetIsOriginAllowed(_ => false);
             });
         });
 

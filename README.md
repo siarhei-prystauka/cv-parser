@@ -110,6 +110,43 @@ cd src/CvParser.Web
 npm run build
 ```
 
+## CI/CD and Azure Deployment (Free Tier)
+
+GitHub Actions runs build and test checks on every pull request and on pushes to `main`.
+
+### Azure Resources
+
+- **API**: Azure App Service (Free F1)
+- **Frontend**: Azure Static Web Apps (Free)
+
+### GitHub Environments and Secrets
+
+Create GitHub environments and store secrets there for least-privilege access.
+
+**Environment: `api-production`**
+
+- `AZURE_CLIENT_ID`
+- `AZURE_TENANT_ID`
+- `AZURE_SUBSCRIPTION_ID`
+- `AZURE_WEBAPP_NAME`
+
+**Environment: `web-production`**
+
+- `AZURE_STATIC_WEB_APPS_API_TOKEN`
+
+### Azure App Settings (API)
+
+Set these in the App Service configuration:
+
+- `Groq__ApiKey`: your Groq API key
+- `AllowedOrigins__0`: your Static Web App URL (for example, `https://<app>.azurestaticapps.net`)
+
+### Deployment Workflows
+
+- **CI**: `.github/workflows/ci.yml` (build + test on PRs and `main`)
+- **API**: `.github/workflows/deploy-api.yml` (deploys App Service on `main`)
+- **Web**: `.github/workflows/deploy-web.yml` (deploys Static Web App on `main`)
+
 ## License
 
 See [LICENSE](LICENSE) file for details.
