@@ -1,5 +1,6 @@
 using CvParser.Api.Models.Options;
 using CvParser.Api.Repositories;
+using Microsoft.Extensions.Options;
 
 namespace CvParser.Api.Tests.Repositories;
 
@@ -13,7 +14,10 @@ public sealed class InMemorySettingsRepositoryTests
     {
         var initialOptions = new SkillExtractionOptions { LlmFallbackOnly = true };
         var groqOptions = new GroqOptions { ApiKey = "test-key" };
-        var repository = new InMemorySettingsRepository(initialOptions, groqOptions);
+        var repository = new InMemorySettingsRepository(
+            Options.Create(initialOptions),
+            Options.Create(groqOptions)
+        );
 
         var result = await repository.GetSkillExtractionOptionsAsync();
 
@@ -30,7 +34,10 @@ public sealed class InMemorySettingsRepositoryTests
             Model = "test-model",
             TimeoutSeconds = 60
         };
-        var repository = new InMemorySettingsRepository(skillOptions, initialGroqOptions);
+        var repository = new InMemorySettingsRepository(
+            Options.Create(skillOptions),
+            Options.Create(initialGroqOptions)
+        );
 
         var result = await repository.GetGroqOptionsAsync();
 
@@ -44,7 +51,10 @@ public sealed class InMemorySettingsRepositoryTests
     {
         var initialOptions = new SkillExtractionOptions { LlmFallbackOnly = false };
         var groqOptions = new GroqOptions { ApiKey = "test-key" };
-        var repository = new InMemorySettingsRepository(initialOptions, groqOptions);
+        var repository = new InMemorySettingsRepository(
+            Options.Create(initialOptions),
+            Options.Create(groqOptions)
+        );
 
         var newOptions = new SkillExtractionOptions { LlmFallbackOnly = true };
         await repository.UpdateSkillExtractionOptionsAsync(newOptions);
@@ -58,7 +68,10 @@ public sealed class InMemorySettingsRepositoryTests
     {
         var skillOptions = new SkillExtractionOptions { LlmFallbackOnly = false };
         var initialGroqOptions = new GroqOptions { ApiKey = "old-key" };
-        var repository = new InMemorySettingsRepository(skillOptions, initialGroqOptions);
+        var repository = new InMemorySettingsRepository(
+            Options.Create(skillOptions),
+            Options.Create(initialGroqOptions)
+        );
 
         var newGroqOptions = new GroqOptions 
         { 
@@ -79,7 +92,10 @@ public sealed class InMemorySettingsRepositoryTests
     {
         var skillOptions = new SkillExtractionOptions { LlmFallbackOnly = false };
         var groqOptions = new GroqOptions { ApiKey = "initial-key" };
-        var repository = new InMemorySettingsRepository(skillOptions, groqOptions);
+        var repository = new InMemorySettingsRepository(
+            Options.Create(skillOptions),
+            Options.Create(groqOptions)
+        );
 
         const int threadCount = 50;
         var tasks = new Task[threadCount];

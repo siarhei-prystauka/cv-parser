@@ -127,7 +127,7 @@ public sealed class HybridCvSkillExtractorTests
     }
 
     [Test]
-    public async Task ExtractSkillsAsync_WhenTaxonomyMatchesAlias_ReturnsCanonicalnName()
+    public async Task ExtractSkillsAsync_WhenTaxonomyMatchesAlias_ReturnsCanonicalName()
     {
         var options = new SkillExtractionOptions { LlmFallbackOnly = true };
         _settingsRepository.GetSkillExtractionOptionsAsync().Returns(Task.FromResult(options));
