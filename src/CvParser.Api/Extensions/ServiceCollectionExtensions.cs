@@ -45,9 +45,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpClient<ILlmSkillExtractor, GroqSkillExtractor>((serviceProvider, client) =>
         {
-            var settingsRepository = serviceProvider.GetRequiredService<ISettingsRepository>();
-            var groqOptions = settingsRepository.GetGroqOptionsAsync().GetAwaiter().GetResult();
-            
+            var groqOptions = serviceProvider.GetRequiredService<IOptions<GroqOptions>>().Value;
             var baseUrl = groqOptions.BaseUrl;
             // Ensure trailing slash for proper URI combining
             if (!baseUrl.EndsWith('/'))
