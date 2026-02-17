@@ -250,3 +250,14 @@
   - Added GitHub Actions workflows for CI, API deploy, and web deploy with Azure free-tier targets.
   - Updated API CORS configuration to read AllowedOrigins from configuration with development defaults.
   - Documented Azure deployment setup and required secrets in README.
+
+- Timestamp: 2026-02-17T12:00:00+01:00
+  Request: Update CORS for production — origin https://happy-ocean-0900fd003.4.azurestaticapps.net was blocked
+  Actions:
+  - Added production Static Web App origin to AllowedOrigins in appsettings.json.
+
+- Timestamp: 2026-02-17T21:45:00+01:00
+  Request: Analyze production issue — HTTPS redirection warning and forwarded headers
+  Actions:
+  - Added UseForwardedHeaders middleware to support Azure App Service reverse proxy.
+  - Moved UseHttpsRedirection to development-only to avoid warning behind TLS-terminating proxy.
