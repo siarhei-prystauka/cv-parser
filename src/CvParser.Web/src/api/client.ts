@@ -1,7 +1,7 @@
 import type { CvPreviewResponse, ProfileDetail, ProfileSummary, UpdateSkillsRequest } from '../types/profile'
 import type { SettingsResponse, TaxonomyResponse, UpdateSettingsRequest } from '../types/settings'
 
-const API_BASE = '/api/v1'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
 const toJson = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
