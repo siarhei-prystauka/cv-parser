@@ -67,6 +67,7 @@ export const TaxonomyViewer = ({ skills }: TaxonomyViewerProps) => {
         <input
           type="search"
           placeholder="Search skills, categories, or aliases..."
+          aria-label="Search skills"
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           className="w-full rounded-full border border-ink/20 bg-white px-4 py-2 text-sm text-ink shadow-sm focus:border-ocean focus:outline-none focus:ring-2 focus:ring-ocean/20 sm:w-80"
@@ -111,6 +112,7 @@ export const TaxonomyViewer = ({ skills }: TaxonomyViewerProps) => {
                 <button
                   type="button"
                   onClick={() => toggleCategory(category)}
+                  aria-label={`Expand category ${category}`}
                   className="flex w-full items-center justify-between p-4 text-left transition hover:bg-sand/30"
                 >
                   <div className="flex items-center gap-3">

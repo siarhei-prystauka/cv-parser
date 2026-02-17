@@ -243,3 +243,10 @@
   - Completely rewrote src/CvParser.Web/src/components/__tests__/SettingsForm.test.tsx: Removed all 14 tests for timeout/maxTokens/baseUrl validation (fields no longer editable). Kept 8 core tests (render mount, render initial values, render model dropdown contents, toggle llmFallbackOnly switch false→true and true→false, submit with valid data, submit success message, submit error message, submit loading state). Added 1 new test: change model selection updates form data. Updated mockSettings to match new structure with llm.model and llm.availableModels. All tests validate the LLM Configuration dropdown (not input fields).
   - Verified all 10 tests pass with vitest.
   Notes: Test suite now matches simplified SettingsForm component where only model selection (via dropdown) is user-editable. Removed 15 obsolete tests for fields moved to application config. All tests follow TypeScript naming convention (<methodUnderTest> - <scenario> - <expected result>).
+
+- Timestamp: 2026-02-16T21:46:22+01:00
+  Request: Start implementation
+  Actions:
+  - Added GitHub Actions workflows for CI, API deploy, and web deploy with Azure free-tier targets.
+  - Updated API CORS configuration to read AllowedOrigins from configuration with development defaults.
+  - Documented Azure deployment setup and required secrets in README.
