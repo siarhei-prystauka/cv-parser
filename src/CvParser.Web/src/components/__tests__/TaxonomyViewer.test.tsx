@@ -45,16 +45,16 @@ describe('TaxonomyViewer', () => {
     render(<TaxonomyViewer skills={mockSkills} />)
 
     const programmingLanguagesButton = screen.getByRole('button', {
-      name: /programming languages/i,
+      name: /expand category programming languages/i,
     })
     expect(programmingLanguagesButton).toHaveTextContent('2')
 
     const frontendFrameworksButton = screen.getByRole('button', {
-      name: /frontend frameworks/i,
+      name: /expand category frontend frameworks/i,
     })
     expect(frontendFrameworksButton).toHaveTextContent('2')
 
-    const devopsToolsButton = screen.getByRole('button', { name: /devops tools/i })
+    const devopsToolsButton = screen.getByRole('button', { name: /expand category devops tools/i })
     expect(devopsToolsButton).toHaveTextContent('1')
   })
 
@@ -76,7 +76,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const categoryButton = screen.getByRole('button', { name: /programming languages/i })
+    const categoryButton = screen.getByRole('button', { name: /expand category programming languages/i })
     await user.click(categoryButton)
 
     expect(screen.getByText('JavaScript')).toBeInTheDocument()
@@ -87,7 +87,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const categoryButton = screen.getByRole('button', { name: /programming languages/i })
+    const categoryButton = screen.getByRole('button', { name: /expand category programming languages/i })
     await user.click(categoryButton)
 
     expect(screen.getByText('JavaScript')).toBeInTheDocument()
@@ -131,7 +131,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const categoryButton = screen.getByRole('button', { name: /programming languages/i })
+    const categoryButton = screen.getByRole('button', { name: /expand category programming languages/i })
     await user.click(categoryButton)
 
     expect(screen.getByText('JS')).toBeInTheDocument()
@@ -143,7 +143,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'JavaScript')
 
     expect(screen.getByText('Programming Languages')).toBeInTheDocument()
@@ -156,7 +156,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'Frontend')
 
     expect(screen.queryByText('Programming Languages')).not.toBeInTheDocument()
@@ -169,7 +169,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'ReactJS')
 
     expect(screen.queryByText('Programming Languages')).not.toBeInTheDocument()
@@ -182,7 +182,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'NonexistentSkill')
 
     expect(screen.getByText('No skills found matching your search.')).toBeInTheDocument()
@@ -193,7 +193,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'javascript')
 
     expect(screen.getByText('Programming Languages')).toBeInTheDocument()
@@ -204,7 +204,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'Script')
 
     expect(screen.getByText('Programming Languages')).toBeInTheDocument()
@@ -215,10 +215,10 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'React')
 
-    const categoryButton = screen.getByRole('button', { name: /frontend frameworks/i })
+    const categoryButton = screen.getByRole('button', { name: /expand category frontend frameworks/i })
     await user.click(categoryButton)
 
     expect(screen.getByText('React')).toBeInTheDocument()
@@ -244,7 +244,7 @@ describe('TaxonomyViewer', () => {
     ]
     render(<TaxonomyViewer skills={skillsWithoutAliases} />)
 
-    const categoryButton = screen.getByRole('button', { name: /programming languages/i })
+    const categoryButton = screen.getByRole('button', { name: /expand category programming languages/i })
     await user.click(categoryButton)
 
     expect(screen.getByText('Python')).toBeInTheDocument()
@@ -269,7 +269,7 @@ describe('TaxonomyViewer', () => {
     const user = userEvent.setup()
     render(<TaxonomyViewer skills={mockSkills} />)
 
-    const searchInput = screen.getByPlaceholderText(/search skills, categories, or aliases/i)
+    const searchInput = screen.getByRole('searchbox', { name: /search skills/i })
     await user.type(searchInput, 'JavaScript')
 
     expect(screen.getByText(/1 skill across 1 category/i)).toBeInTheDocument()
