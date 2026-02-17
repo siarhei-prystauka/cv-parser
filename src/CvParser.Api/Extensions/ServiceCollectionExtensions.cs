@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+        ValidateOrigins(allowedOrigins);
 
         services.AddOptions<GroqOptions>()
             .BindConfiguration(GroqOptions.SectionName)
@@ -71,14 +72,51 @@ public static class ServiceCollectionExtensions
                     policy.WithOrigins(allowedOrigins)
                         .AllowAnyHeader()
                         .AllowAnyMethod();
-                    return;
                 }
-
-                policy.SetIsOriginAllowed(_ => false);
+                else
+                {
+                    policy.SetIsOriginAllowed(_ => false);
+                }
             });
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// Validates that all configured origins are valid URIs starting with http:// or https://.
+    /// </summary>
+    /// <param name="origins">Array of origin URIs to validate.</param>
+    /// <exception cref="ArgumentException">Thrown if any origin is invalid.</exception>
+    private static void ValidateOrigins(string[] origins)
+    {
+        if (origins.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var origin in origins)
+        {
+            if (string.IsNullOrWhiteSpace(origin))
+            {
+                throw new ArgumentException("AllowedOrigins contains an empty or whitespace-only value.", nameof(origins));
+            }
+
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+            {
+                throw new ArgumentException($"AllowedOrigins contains an invalid URI: '{origin}'.", nameof(origins));
+            }
+
+            if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            {
+                throw new ArgumentException($"AllowedOrigins contains a URI with invalid scheme '{uri.Scheme}'. Only 'http' and 'https' are allowed: '{origin}'.", nameof(origins));
+            }
+
+            if (origin.Contains('*'))
+            {
+                throw new ArgumentException($"AllowedOrigins contains wildcards, which are not allowed for security reasons: '{origin}'.", nameof(origins));
+            }
+        }
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
