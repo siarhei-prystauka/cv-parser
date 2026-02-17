@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   api-build-test:
-    name: api-build-test
+    name: CvParser.Api build and test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,7 +40,7 @@ jobs:
         run: dotnet test CvParser.slnx -c Release --no-build
 
   web-build-test:
-    name: web-build-test
+    name: CvParser.Web build and test
     runs-on: ubuntu-latest
     defaults:
       run:
