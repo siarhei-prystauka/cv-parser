@@ -32,7 +32,7 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/.well-known/*", "/*.*"]
+    "exclude": ["/.well-known/*"]
   },
   "responseOverrides": {
     "404": {
