@@ -7,12 +7,14 @@ on:
     paths:
       - 'src/CvParser.Web/**'
       - '.github/workflows/web-ci.yml'
+      - '.github/workflows/deploy-web.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'src/CvParser.Web/**'
       - '.github/workflows/web-ci.yml'
+      - '.github/workflows/deploy-web.yml'
 
 permissions:
   contents: read

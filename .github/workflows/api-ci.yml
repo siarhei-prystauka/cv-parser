@@ -9,6 +9,7 @@ on:
       - 'src/CvParser.Api.Tests/**'
       - 'CvParser.slnx'
       - '.github/workflows/api-ci.yml'
+      - '.github/workflows/deploy-api.yml'
   pull_request:
     branches:
       - main
@@ -17,6 +18,7 @@ on:
       - 'src/CvParser.Api.Tests/**'
       - 'CvParser.slnx'
       - '.github/workflows/api-ci.yml'
+      - '.github/workflows/deploy-api.yml'
 
 permissions:
   contents: read

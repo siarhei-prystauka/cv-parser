@@ -145,7 +145,8 @@ Set these in the App Service configuration:
 
 ### Deployment Workflows
 
-- **CI**: `.github/workflows/ci.yml` (build + test on PRs and `main`)
+- **API CI**: `.github/workflows/api-ci.yml` (build + test on PRs and `main`)
+- **Web CI**: `.github/workflows/web-ci.yml` (build + test on PRs and `main`)
 - **API**: `.github/workflows/deploy-api.yml` (deploys App Service on `main`)
 - **Web**: `.github/workflows/deploy-web.yml` (deploys Static Web App on `main`)
 
