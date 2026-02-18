@@ -30,7 +30,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 c => c.ToList());
 
             entity.Property(e => e.Skills)
-                .HasColumnType("nvarchar(max)")
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
                     v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>())
@@ -41,9 +40,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             entity.HasKey(e => e.Key);
             entity.Property(e => e.Key).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.Value).HasColumnType("nvarchar(max)").IsRequired();
+            entity.Property(e => e.Value).IsRequired();
             entity.HasIndex(e => e.Key);
-            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
         });
     }
 }

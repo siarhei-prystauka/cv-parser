@@ -15,9 +15,9 @@ namespace CvParser.Api.Migrations
                 name: "ApplicationSettings",
                 columns: table => new
                 {
-                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                    Key = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,12 +28,12 @@ namespace CvParser.Api.Migrations
                 name: "EmployeeProfiles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    DepartmentName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Skills = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    FirstName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    DateOfBirth = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    DepartmentName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Skills = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,14 +62,14 @@ namespace CvParser.Api.Migrations
 
             migrationBuilder.InsertData(
                 table: "ApplicationSettings",
-                columns: new[] { "Key", "Value" },
+                columns: new[] { "Key", "Value", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { "SkillExtraction:LlmFallbackOnly", "false" },
-                    { "Groq:BaseUrl", "https://api.groq.com/openai/v1" },
-                    { "Groq:Model", "llama-3.3-70b-versatile" },
-                    { "Groq:TimeoutSeconds", "30" },
-                    { "Groq:MaxTokens", "2048" }
+                    { "SkillExtraction:LlmFallbackOnly", "false", DateTime.UtcNow },
+                    { "Groq:BaseUrl", "https://api.groq.com/openai/v1", DateTime.UtcNow },
+                    { "Groq:Model", "llama-3.3-70b-versatile", DateTime.UtcNow },
+                    { "Groq:TimeoutSeconds", "30", DateTime.UtcNow },
+                    { "Groq:MaxTokens", "2048", DateTime.UtcNow }
                 });
         }
 
