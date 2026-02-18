@@ -261,3 +261,9 @@
   Actions:
   - Added UseForwardedHeaders middleware to support Azure App Service reverse proxy.
   - Moved UseHttpsRedirection to development-only to avoid warning behind TLS-terminating proxy.
+
+- Timestamp: 2026-02-18T00:00:00+01:00
+  Request: Pass VITE_API_BASE_URL environment variable to the deploy-web GitHub Actions workflow.
+  Actions:
+  - Added env block to the Deploy to Azure Static Web Apps step in deploy-web.yml, referencing the repository variable vars.VITE_API_BASE_URL.
+  Notes: The VITE_API_BASE_URL repository variable must be created in GitHub repo Settings → Secrets and variables → Actions → Variables.
