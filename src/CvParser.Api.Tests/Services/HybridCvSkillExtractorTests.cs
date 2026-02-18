@@ -1,4 +1,4 @@
-using CvParser.Api.Models.Options;
+using CvParser.Api.Models;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -38,8 +38,7 @@ public sealed class HybridCvSkillExtractorTests
     [Test]
     public async Task ExtractSkillsAsync_WhenLlmFallbackOnlyIsFalse_CallsLlmExtractor()
     {
-        var options = new SkillExtractionOptions { LlmFallbackOnly = false };
-        _settingsRepository.GetSkillExtractionOptionsAsync().Returns(Task.FromResult(options));
+        _settingsRepository.GetAsync().Returns(Task.FromResult(new ApplicationSetting { LlmFallbackOnly = false, LlmModel = "llama-3.3-70b-versatile" }));
 
         var cvText = "I have experience with C# and React";
         _textExtractor.ExtractTextAsync(Arg.Any<Stream>(), Arg.Any<string>())
@@ -68,8 +67,7 @@ public sealed class HybridCvSkillExtractorTests
     [Test]
     public async Task ExtractSkillsAsync_WhenLlmFallbackOnlyIsTrueAndTaxonomyFindsSkills_DoesNotCallLlmExtractor()
     {
-        var options = new SkillExtractionOptions { LlmFallbackOnly = true };
-        _settingsRepository.GetSkillExtractionOptionsAsync().Returns(Task.FromResult(options));
+        _settingsRepository.GetAsync().Returns(Task.FromResult(new ApplicationSetting { LlmFallbackOnly = true, LlmModel = "llama-3.3-70b-versatile" }));
 
         var cvText = "I have experience with C# and React frameworks";
         _textExtractor.ExtractTextAsync(Arg.Any<Stream>(), Arg.Any<string>())
@@ -99,8 +97,7 @@ public sealed class HybridCvSkillExtractorTests
     [Test]
     public async Task ExtractSkillsAsync_WhenLlmFallbackOnlyIsTrueAndTaxonomyFindsNoSkills_CallsLlmExtractor()
     {
-        var options = new SkillExtractionOptions { LlmFallbackOnly = true };
-        _settingsRepository.GetSkillExtractionOptionsAsync().Returns(Task.FromResult(options));
+        _settingsRepository.GetAsync().Returns(Task.FromResult(new ApplicationSetting { LlmFallbackOnly = true, LlmModel = "llama-3.3-70b-versatile" }));
 
         var cvText = "I have experience with Rust and Go programming languages";
         _textExtractor.ExtractTextAsync(Arg.Any<Stream>(), Arg.Any<string>())
@@ -129,8 +126,7 @@ public sealed class HybridCvSkillExtractorTests
     [Test]
     public async Task ExtractSkillsAsync_WhenTaxonomyMatchesAlias_ReturnsCanonicalName()
     {
-        var options = new SkillExtractionOptions { LlmFallbackOnly = true };
-        _settingsRepository.GetSkillExtractionOptionsAsync().Returns(Task.FromResult(options));
+        _settingsRepository.GetAsync().Returns(Task.FromResult(new ApplicationSetting { LlmFallbackOnly = true, LlmModel = "llama-3.3-70b-versatile" }));
 
         var cvText = "I know csharp and reactjs";
         _textExtractor.ExtractTextAsync(Arg.Any<Stream>(), Arg.Any<string>())
@@ -156,8 +152,7 @@ public sealed class HybridCvSkillExtractorTests
     [Test]
     public async Task ExtractSkillsAsync_WithDuplicateSkills_ReturnsUniqueSkills()
     {
-        var options = new SkillExtractionOptions { LlmFallbackOnly = false };
-        _settingsRepository.GetSkillExtractionOptionsAsync().Returns(Task.FromResult(options));
+        _settingsRepository.GetAsync().Returns(Task.FromResult(new ApplicationSetting { LlmFallbackOnly = false, LlmModel = "llama-3.3-70b-versatile" }));
 
         var cvText = "I use C# and csharp programming language";
         _textExtractor.ExtractTextAsync(Arg.Any<Stream>(), Arg.Any<string>())
@@ -183,8 +178,7 @@ public sealed class HybridCvSkillExtractorTests
     [Test]
     public async Task ExtractSkillsAsync_WithEmptyText_ReturnsEmptyList()
     {
-        var options = new SkillExtractionOptions { LlmFallbackOnly = false };
-        _settingsRepository.GetSkillExtractionOptionsAsync().Returns(Task.FromResult(options));
+        _settingsRepository.GetAsync().Returns(Task.FromResult(new ApplicationSetting { LlmFallbackOnly = false, LlmModel = "llama-3.3-70b-versatile" }));
 
         _textExtractor.ExtractTextAsync(Arg.Any<Stream>(), Arg.Any<string>())
             .Returns(Task.FromResult(string.Empty));

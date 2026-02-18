@@ -1,5 +1,5 @@
 using CvParser.Api.Data;
-using CvParser.Api.Models.Options;
+using CvParser.Api.Models;
 using CvParser.Api.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,74 +19,54 @@ public sealed class SqlSettingsRepositoryTests
     }
 
     [Test]
-    public async Task GetSkillExtractionOptionsAsync_WithNoData_ReturnsDefaults()
+    public async Task GetAsync_WithNoData_ReturnsDefaults()
     {
         await using var context = CreateInMemoryContext();
         var repository = new SqlSettingsRepository(context);
 
-        var result = await repository.GetSkillExtractionOptionsAsync();
+        var result = await repository.GetAsync();
 
         Assert.That(result.LlmFallbackOnly, Is.False);
+        Assert.That(result.LlmModel, Is.EqualTo("llama-3.3-70b-versatile"));
     }
 
     [Test]
-    public async Task UpdateSkillExtractionOptionsAsync_WithNewOptions_PersistsChanges()
+    public async Task UpdateAsync_WithNewValues_PersistsChanges()
     {
         await using var context = CreateInMemoryContext();
         var repository = new SqlSettingsRepository(context);
 
-        await repository.UpdateSkillExtractionOptionsAsync(new SkillExtractionOptions { LlmFallbackOnly = true });
-        var result = await repository.GetSkillExtractionOptionsAsync();
+        await repository.UpdateAsync(new ApplicationSetting { LlmFallbackOnly = true, LlmModel = "llama-3.1-8b-instant" });
+        var result = await repository.GetAsync();
 
         Assert.That(result.LlmFallbackOnly, Is.True);
+        Assert.That(result.LlmModel, Is.EqualTo("llama-3.1-8b-instant"));
     }
 
     [Test]
-    public async Task GetGroqOptionsAsync_WithNoData_ReturnsDefaults()
+    public async Task UpdateAsync_CalledTwice_OverwritesPreviousValues()
     {
         await using var context = CreateInMemoryContext();
         var repository = new SqlSettingsRepository(context);
 
-        var result = await repository.GetGroqOptionsAsync();
+        await repository.UpdateAsync(new ApplicationSetting { LlmFallbackOnly = false, LlmModel = "model-1" });
+        await repository.UpdateAsync(new ApplicationSetting { LlmFallbackOnly = true, LlmModel = "model-2" });
+        var result = await repository.GetAsync();
 
-        Assert.That(result.BaseUrl, Is.EqualTo("https://api.groq.com/openai/v1/"));
-        Assert.That(result.TimeoutSeconds, Is.EqualTo(30));
-        Assert.That(result.MaxTokens, Is.EqualTo(1000));
+        Assert.That(result.LlmFallbackOnly, Is.True);
+        Assert.That(result.LlmModel, Is.EqualTo("model-2"));
     }
 
     [Test]
-    public async Task UpdateGroqOptionsAsync_WithNewOptions_PersistsChanges()
+    public async Task UpdateAsync_SetsUpdatedAt()
     {
         await using var context = CreateInMemoryContext();
         var repository = new SqlSettingsRepository(context);
+        var before = DateTime.UtcNow;
 
-        var newOptions = new GroqOptions
-        {
-            ApiKey = "new-key",
-            Model = "new-model",
-            TimeoutSeconds = 60,
-            MaxTokens = 2048,
-            BaseUrl = "https://api.groq.com/openai/v1/"
-        };
-        await repository.UpdateGroqOptionsAsync(newOptions);
-        var result = await repository.GetGroqOptionsAsync();
+        await repository.UpdateAsync(new ApplicationSetting { LlmFallbackOnly = false, LlmModel = "llama-3.3-70b-versatile" });
+        var result = await context.ApplicationSettings.SingleAsync();
 
-        Assert.That(result.ApiKey, Is.EqualTo("new-key"));
-        Assert.That(result.Model, Is.EqualTo("new-model"));
-        Assert.That(result.TimeoutSeconds, Is.EqualTo(60));
-    }
-
-    [Test]
-    public async Task UpdateGroqOptionsAsync_CalledTwice_OverwritesPreviousValues()
-    {
-        await using var context = CreateInMemoryContext();
-        var repository = new SqlSettingsRepository(context);
-
-        await repository.UpdateGroqOptionsAsync(new GroqOptions { ApiKey = "key-1", Model = "model-1", BaseUrl = "https://api.groq.com/openai/v1/" });
-        await repository.UpdateGroqOptionsAsync(new GroqOptions { ApiKey = "key-2", Model = "model-2", BaseUrl = "https://api.groq.com/openai/v1/" });
-        var result = await repository.GetGroqOptionsAsync();
-
-        Assert.That(result.ApiKey, Is.EqualTo("key-2"));
-        Assert.That(result.Model, Is.EqualTo("model-2"));
+        Assert.That(result.UpdatedAt, Is.GreaterThanOrEqualTo(before));
     }
 }

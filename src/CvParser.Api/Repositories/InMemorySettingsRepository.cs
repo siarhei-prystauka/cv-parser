@@ -1,3 +1,4 @@
+using CvParser.Api.Models;
 using CvParser.Api.Models.Options;
 using Microsoft.Extensions.Options;
 
@@ -8,53 +9,39 @@ namespace CvParser.Api.Repositories;
 /// </summary>
 public sealed class InMemorySettingsRepository : ISettingsRepository
 {
-    private SkillExtractionOptions _skillExtractionOptions;
-    private GroqOptions _groqOptions;
+    private ApplicationSetting _setting;
     private readonly object _lock = new();
 
     public InMemorySettingsRepository(IOptions<SkillExtractionOptions> skillExtractionOptions, IOptions<GroqOptions> groqOptions)
     {
-        _skillExtractionOptions = skillExtractionOptions.Value;
-        _groqOptions = groqOptions.Value;
+        _setting = new ApplicationSetting
+        {
+            LlmFallbackOnly = skillExtractionOptions.Value.LlmFallbackOnly,
+            LlmModel = groqOptions.Value.Model ?? "llama-3.3-70b-versatile"
+        };
     }
 
-    public Task<SkillExtractionOptions> GetSkillExtractionOptionsAsync()
+    public Task<ApplicationSetting> GetAsync()
     {
         lock (_lock)
         {
-            return Task.FromResult(new SkillExtractionOptions { LlmFallbackOnly = _skillExtractionOptions.LlmFallbackOnly });
-        }
-    }
-
-    public Task UpdateSkillExtractionOptionsAsync(SkillExtractionOptions options)
-    {
-        lock (_lock)
-        {
-            _skillExtractionOptions = options;
-            return Task.CompletedTask;
-        }
-    }
-
-    public Task<GroqOptions> GetGroqOptionsAsync()
-    {
-        lock (_lock)
-        {
-            return Task.FromResult(new GroqOptions
+            return Task.FromResult(new ApplicationSetting
             {
-                ApiKey = _groqOptions.ApiKey,
-                BaseUrl = _groqOptions.BaseUrl,
-                Model = _groqOptions.Model,
-                TimeoutSeconds = _groqOptions.TimeoutSeconds,
-                MaxTokens = _groqOptions.MaxTokens
+                Id = _setting.Id,
+                LlmFallbackOnly = _setting.LlmFallbackOnly,
+                LlmModel = _setting.LlmModel,
+                UpdatedAt = _setting.UpdatedAt
             });
         }
     }
 
-    public Task UpdateGroqOptionsAsync(GroqOptions options)
+    public Task UpdateAsync(ApplicationSetting setting)
     {
         lock (_lock)
         {
-            _groqOptions = options;
+            _setting.LlmFallbackOnly = setting.LlmFallbackOnly;
+            _setting.LlmModel = setting.LlmModel;
+            _setting.UpdatedAt = DateTime.UtcNow;
             return Task.CompletedTask;
         }
     }

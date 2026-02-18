@@ -55,7 +55,7 @@ public class HybridCvSkillExtractor : ICvSkillExtractor
             var taxonomyMatches = MatchTaxonomy(normalizedText);
             _logger.LogInformation("Taxonomy matched {Count} skills", taxonomyMatches.Count());
 
-            var options = await _settingsRepository.GetSkillExtractionOptionsAsync();
+            var options = await _settingsRepository.GetAsync();
             
             IEnumerable<string> llmSkills;
             if (options.LlmFallbackOnly && taxonomyMatches.Any())

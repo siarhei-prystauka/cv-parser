@@ -39,12 +39,7 @@ public static class ServiceCollectionExtensions
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            if (connectionString?.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase) == true)
-                options.UseSqlite(connectionString);
-            else
-                options.UseSqlServer(connectionString);
-        });
+            options.UseNpgsql(connectionString));
 
         services.AddScoped<ISettingsRepository, SqlSettingsRepository>();
 

@@ -278,3 +278,21 @@
   - Added paths filter to deploy-web.yml push trigger: src/CvParser.Web/**, .github/workflows/deploy-web.yml.
   - Retained workflow_dispatch on both deploy workflows for manual overrides.
   - Each workflow watches only its own yml file path (no cross-triggering on unrelated workflow changes).
+
+- Timestamp: 2026-02-18T15:00:00+01:00
+  Request: Migrate database from SQLite/Azure SQL to Azure Database for PostgreSQL with native array support; simplify ApplicationSetting to LlmFallbackOnly and LlmModel only; seed 4 profiles.
+  Actions:
+  - Removed Microsoft.EntityFrameworkCore.Sqlite and Microsoft.EntityFrameworkCore.SqlServer NuGet packages.
+  - Added Npgsql.EntityFrameworkCore.PostgreSQL 10.0.0.
+  - Replaced ApplicationSetting model: removed generic key-value (Key/Value) structure, replaced with strongly-typed singleton (Id, LlmFallbackOnly, LlmModel, UpdatedAt).
+  - Simplified ISettingsRepository interface to GetAsync() and UpdateAsync(ApplicationSetting).
+  - Rewrote SqlSettingsRepository: single-row upsert pattern, returns defaults when no row exists.
+  - Rewrote InMemorySettingsRepository to implement new interface, initialised from IOptions<SkillExtractionOptions> and IOptions<GroqOptions>.
+  - Updated SettingsController to use GetAsync/UpdateAsync, removed Groq multi-field persistence (ApiKey, BaseUrl, TimeoutSeconds, MaxTokens remain appsettings.json only).
+  - Updated ApplicationDbContext: removed SQLite/JSON conditional, applied text[] column type for Skills unconditionally, updated ApplicationSetting entity config for new model shape.
+  - Simplified ServiceCollectionExtensions: removed SQLite provider detection, always uses UseNpgsql.
+  - Rewrote migration 20260218103056_InitialCreate with PostgreSQL column types (uuid, date, timestamp with time zone, character varying, boolean, text[]).
+  - Updated migration designer and ModelSnapshot with Npgsql annotations and UseIdentityByDefaultColumns.
+  - Reduced seed data: 4 employee profiles (Mateo/Engineering, Nia/Data, Liam/Design, Priya/Marketing); 1 ApplicationSettings row with defaults.
+  - Rewrote SqlSettingsRepositoryTests and InMemorySettingsRepositoryTests to match new interface.
+  - Deleted cvparser.db SQLite file.

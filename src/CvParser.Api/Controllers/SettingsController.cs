@@ -1,4 +1,4 @@
-using CvParser.Api.Models.Options;
+using CvParser.Api.Models;
 using CvParser.Api.Models.Requests;
 using CvParser.Api.Models.Responses;
 using CvParser.Api.Repositories;
@@ -37,12 +37,11 @@ public class SettingsController : ControllerBase
     [ProducesResponseType(typeof(SettingsResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<SettingsResponse>> GetSettings()
     {
-        var skillExtractionOptions = await _repository.GetSkillExtractionOptionsAsync();
-        var groqOptions = await _repository.GetGroqOptionsAsync();
+        var setting = await _repository.GetAsync();
 
         var response = new SettingsResponse(
-            new SkillExtractionSettings(skillExtractionOptions.LlmFallbackOnly),
-            new LlmSettings(groqOptions.Model, AvailableModels)
+            new SkillExtractionSettings(setting.LlmFallbackOnly),
+            new LlmSettings(setting.LlmModel, AvailableModels)
         );
 
         return Ok(response);
@@ -62,27 +61,15 @@ public class SettingsController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var skillExtractionOptions = new SkillExtractionOptions
+        await _repository.UpdateAsync(new ApplicationSetting
         {
-            LlmFallbackOnly = request.SkillExtraction.LlmFallbackOnly
-        };
-
-        var currentGroqOptions = await _repository.GetGroqOptionsAsync();
-        var groqOptions = new GroqOptions
-        {
-            ApiKey = currentGroqOptions.ApiKey,
-            BaseUrl = currentGroqOptions.BaseUrl,
-            Model = request.Llm.Model,
-            TimeoutSeconds = currentGroqOptions.TimeoutSeconds,
-            MaxTokens = currentGroqOptions.MaxTokens
-        };
-
-        await _repository.UpdateSkillExtractionOptionsAsync(skillExtractionOptions);
-        await _repository.UpdateGroqOptionsAsync(groqOptions);
+            LlmFallbackOnly = request.SkillExtraction.LlmFallbackOnly,
+            LlmModel = request.Llm.Model
+        });
 
         var response = new SettingsResponse(
-            new SkillExtractionSettings(skillExtractionOptions.LlmFallbackOnly),
-            new LlmSettings(groqOptions.Model, AvailableModels)
+            new SkillExtractionSettings(request.SkillExtraction.LlmFallbackOnly),
+            new LlmSettings(request.Llm.Model, AvailableModels)
         );
 
         return Ok(response);

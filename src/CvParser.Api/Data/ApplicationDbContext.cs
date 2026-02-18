@@ -1,7 +1,5 @@
-using System.Text.Json;
 using CvParser.Api.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace CvParser.Api.Data;
 
@@ -23,25 +21,13 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(e => e.FirstName).HasMaxLength(100).IsRequired();
             entity.Property(e => e.LastName).HasMaxLength(100).IsRequired();
             entity.Property(e => e.DepartmentName).HasMaxLength(100).IsRequired();
-
-            var skillsComparer = new ValueComparer<List<string>>(
-                (a, b) => a != null && b != null && a.SequenceEqual(b),
-                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                c => c.ToList());
-
-            entity.Property(e => e.Skills)
-                .HasConversion(
-                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>())
-                .Metadata.SetValueComparer(skillsComparer);
+            entity.Property(e => e.Skills).HasColumnType("text[]");
         });
 
         modelBuilder.Entity<ApplicationSetting>(entity =>
         {
-            entity.HasKey(e => e.Key);
-            entity.Property(e => e.Key).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.Value).IsRequired();
-            entity.HasIndex(e => e.Key);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.LlmModel).HasMaxLength(200).IsRequired();
         });
     }
 }
