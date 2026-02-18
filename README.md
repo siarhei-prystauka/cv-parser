@@ -2,6 +2,8 @@
 
 Web application that reads a new employee's CV and IFU, extracts skills, and saves them in a structured format.
 
+**Application URL**: https://happy-ocean-0900fd003.4.azurestaticapps.net/
+
 ## Technology Stack
 
 - **Backend**: .NET 10 Web API (Controller-based)

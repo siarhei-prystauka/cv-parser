@@ -250,3 +250,7 @@
   - Added GitHub Actions workflows for CI, API deploy, and web deploy with Azure free-tier targets.
   - Updated API CORS configuration to read AllowedOrigins from configuration with development defaults.
   - Documented Azure deployment setup and required secrets in README.
+- Timestamp: 2026-02-18T12:00:00+01:00
+  Request: Add live demo URL to README
+  Actions:
+  - Added live demo link (https://happy-ocean-0900fd003.4.azurestaticapps.net/) to README.md.
