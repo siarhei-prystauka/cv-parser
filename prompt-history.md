@@ -267,3 +267,14 @@
   Actions:
   - Added env block to the Deploy to Azure Static Web Apps step in deploy-web.yml, referencing the repository variable vars.VITE_API_BASE_URL.
   Notes: The VITE_API_BASE_URL repository variable must be created in GitHub repo Settings → Secrets and variables → Actions → Variables.
+
+- Timestamp: 2026-02-18T12:00:00+01:00
+  Request: Scope CI and deploy pipelines to run only when relevant files change.
+  Actions:
+  - Deleted ci.yml and replaced with api-ci.yml (API job only) and web-ci.yml (web job only).
+  - Added paths filter to api-ci.yml: src/CvParser.Api/**, src/CvParser.Api.Tests/**, CvParser.slnx, .github/workflows/api-ci.yml.
+  - Added paths filter to web-ci.yml: src/CvParser.Web/**, .github/workflows/web-ci.yml.
+  - Added paths filter to deploy-api.yml push trigger: src/CvParser.Api/**, CvParser.slnx, .github/workflows/deploy-api.yml.
+  - Added paths filter to deploy-web.yml push trigger: src/CvParser.Web/**, .github/workflows/deploy-web.yml.
+  - Retained workflow_dispatch on both deploy workflows for manual overrides.
+  - Each workflow watches only its own yml file path (no cross-triggering on unrelated workflow changes).
