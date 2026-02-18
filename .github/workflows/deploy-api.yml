@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/CvParser.Api/**'
+      - 'CvParser.slnx'
+      - '.github/workflows/deploy-api.yml'
   workflow_dispatch:
 
 permissions:

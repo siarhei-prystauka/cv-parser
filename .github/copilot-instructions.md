@@ -56,6 +56,6 @@ This is a full-stack web application with a .NET 10 Web API backend and React Ty
 
 ## Prompt History
 - Maintain prompt-history.md in the repository root.
-- For every Copilot command or request in plan or agent mode, append a new entry with a timestamp and a short, readable summary.
+- For every Copilot command or request in plan or agent mode, append a new entry following the exact template and format defined in prompt-history.md.
 - Use ISO 8601 timestamps with timezone (for example: 2026-02-07T14:30:00+01:00).
 - Do not rewrite or reorder existing entries; only append.

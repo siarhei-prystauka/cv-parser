@@ -1,44 +1,27 @@
-name: ci
+name: web-ci
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'src/CvParser.Web/**'
+      - '.github/workflows/web-ci.yml'
   pull_request:
     branches:
       - main
+    paths:
+      - 'src/CvParser.Web/**'
+      - '.github/workflows/web-ci.yml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: web-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  api-build-test:
-    name: CvParser.Api build and test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Restore
-        run: dotnet restore CvParser.slnx
-
-      - name: Build
-        run: dotnet build CvParser.slnx -c Release --no-restore
-
-      - name: Test
-        run: dotnet test CvParser.slnx -c Release --no-build
-
   web-build-test:
     name: CvParser.Web build and test
     runs-on: ubuntu-latest
