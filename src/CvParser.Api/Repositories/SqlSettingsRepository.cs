@@ -44,7 +44,13 @@ public sealed class SqlSettingsRepository(ApplicationDbContext context) : ISetti
 
     public async Task UpdateGroqOptionsAsync(GroqOptions options)
     {
-        await context.Database.BeginTransactionAsync();
+        var isInMemory = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
+        
+        if (!isInMemory)
+        {
+            await context.Database.BeginTransactionAsync();
+        }
+        
         try
         {
             await UpsertAsync($"{GroqPrefix}ApiKey", options.ApiKey);
@@ -52,11 +58,18 @@ public sealed class SqlSettingsRepository(ApplicationDbContext context) : ISetti
             await UpsertAsync($"{GroqPrefix}Model", options.Model);
             await UpsertAsync($"{GroqPrefix}TimeoutSeconds", options.TimeoutSeconds.ToString());
             await UpsertAsync($"{GroqPrefix}MaxTokens", options.MaxTokens.ToString());
-            await context.Database.CommitTransactionAsync();
+            
+            if (!isInMemory)
+            {
+                await context.Database.CommitTransactionAsync();
+            }
         }
         catch
         {
-            await context.Database.RollbackTransactionAsync();
+            if (!isInMemory)
+            {
+                await context.Database.RollbackTransactionAsync();
+            }
             throw;
         }
     }
