@@ -1,8 +1,10 @@
 using System;
 using CvParser.Api.Converters;
+using CvParser.Api.Data;
 using CvParser.Api.Models.Options;
 using CvParser.Api.Repositories;
 using CvParser.Api.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -35,7 +37,16 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddSingleton<ISettingsRepository, InMemorySettingsRepository>();
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        services.AddDbContext<ApplicationDbContext>(options =>
+        {
+            if (connectionString?.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase) == true)
+                options.UseSqlite(connectionString);
+            else
+                options.UseSqlServer(connectionString);
+        });
+
+        services.AddScoped<ISettingsRepository, SqlSettingsRepository>();
 
         services.AddScoped<ICvTextExtractor, PdfTextExtractor>();
         // TODO: Register DocxTextExtractor when DOCX support is implemented (see GitHub issue #5)
@@ -57,7 +68,7 @@ public static class ServiceCollectionExtensions
         })
         .AddPolicyHandler(GetRetryPolicy());
 
-        services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
+        services.AddScoped<IProfileRepository, SqlProfileRepository>();
         services.AddScoped<ICvSkillExtractor, HybridCvSkillExtractor>();
         services.AddScoped<IProfileConverter, ProfileConverter>();
         

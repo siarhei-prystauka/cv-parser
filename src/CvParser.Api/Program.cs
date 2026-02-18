@@ -1,3 +1,4 @@
+using CvParser.Api.Data;
 using CvParser.Api.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 
@@ -39,5 +40,11 @@ if (app.Environment.IsDevelopment())
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await context.Database.MigrateAsync();
+}
 
 app.Run();
