@@ -11,11 +11,11 @@ public sealed class InMemoryProfileRepositoryTests
     /// Ensures seeded profiles are available for development.
     /// </summary>
     [Test]
-    public void GetAll_OnInitialization_ReturnsSeededProfiles()
+    public async Task GetAllAsync_OnInitialization_ReturnsSeededProfiles()
     {
         var repository = new InMemoryProfileRepository();
 
-        var profiles = repository.GetAll();
+        var profiles = await repository.GetAllAsync();
 
         Assert.That(profiles, Is.Not.Empty);
         Assert.That(profiles.Count, Is.GreaterThanOrEqualTo(1));

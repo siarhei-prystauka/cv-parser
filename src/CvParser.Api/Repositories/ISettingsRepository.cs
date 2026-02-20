@@ -1,11 +1,9 @@
-using CvParser.Api.Models.Options;
+using CvParser.Api.Models;
 
 namespace CvParser.Api.Repositories;
 
 public interface ISettingsRepository
 {
-    Task<SkillExtractionOptions> GetSkillExtractionOptionsAsync();
-    Task UpdateSkillExtractionOptionsAsync(SkillExtractionOptions options);
-    Task<GroqOptions> GetGroqOptionsAsync();
-    Task UpdateGroqOptionsAsync(GroqOptions options);
+    Task<ApplicationSetting> GetAsync();
+    Task UpdateAsync(ApplicationSetting setting);
 }

@@ -10,35 +10,38 @@ public sealed class InMemoryProfileRepository : IProfileRepository
     private readonly List<EmployeeProfile> _profiles = BuildSeedProfiles();
     private readonly object _lock = new();
 
-    public IReadOnlyList<EmployeeProfile> GetAll()
+    public Task<IReadOnlyList<EmployeeProfile>> GetAllAsync()
     {
         lock (_lock)
         {
-            return _profiles.Select(CloneProfile).ToList();
+            var result = _profiles.Select(CloneProfile).ToList();
+            return Task.FromResult<IReadOnlyList<EmployeeProfile>>(result);
         }
     }
 
-    public EmployeeProfile? GetById(Guid id)
+    public Task<EmployeeProfile?> GetByIdAsync(Guid id)
     {
         lock (_lock)
         {
             var profile = _profiles.FirstOrDefault(item => item.Id == id);
-            return profile is null ? null : CloneProfile(profile);
+            var result = profile is null ? null : CloneProfile(profile);
+            return Task.FromResult(result);
         }
     }
 
-    public EmployeeProfile? UpdateSkills(Guid id, IReadOnlyList<string> skills)
+    public Task<EmployeeProfile?> UpdateSkillsAsync(Guid id, IReadOnlyList<string> skills)
     {
         lock (_lock)
         {
             var profile = _profiles.FirstOrDefault(item => item.Id == id);
             if (profile is null)
             {
-                return null;
+                return Task.FromResult<EmployeeProfile?>(null);
             }
 
             profile.Skills = skills.ToList();
-            return CloneProfile(profile);
+            var result = CloneProfile(profile);
+            return Task.FromResult<EmployeeProfile?>(result);
         }
     }
 

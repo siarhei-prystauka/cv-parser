@@ -40,9 +40,9 @@ public class ProfilesController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProfileSummary>), StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<ProfileSummary>> GetProfiles()
+    public async Task<ActionResult<IEnumerable<ProfileSummary>>> GetProfiles()
     {
-        var profiles = _repository.GetAll().Select(_converter.ToSummary);
+        var profiles = (await _repository.GetAllAsync()).Select(_converter.ToSummary);
         return Ok(profiles);
     }
 
@@ -52,9 +52,9 @@ public class ProfilesController : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ProfileDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<ProfileDetail> GetProfile(Guid id)
+    public async Task<ActionResult<ProfileDetail>> GetProfile(Guid id)
     {
-        var profile = _repository.GetById(id);
+        var profile = await _repository.GetByIdAsync(id);
         if (profile is null)
         {
             return NotFound();
@@ -75,7 +75,7 @@ public class ProfilesController : ControllerBase
         IFormFile cvFile,
         CancellationToken cancellationToken)
     {
-        var profile = _repository.GetById(id);
+        var profile = await _repository.GetByIdAsync(id);
         if (profile is null)
         {
             return NotFound();
@@ -101,7 +101,7 @@ public class ProfilesController : ControllerBase
     [ProducesResponseType(typeof(ProfileDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<ProfileDetail> UpdateSkills(Guid id, [FromBody] UpdateSkillsRequest request)
+    public async Task<ActionResult<ProfileDetail>> UpdateSkills(Guid id, [FromBody] UpdateSkillsRequest request)
     {
         var validationResult = ValidateSkills(request);
         if (validationResult is not null)
@@ -110,7 +110,7 @@ public class ProfilesController : ControllerBase
         }
 
         var normalized = NormalizeSkills(request.Skills);
-        var updated = _repository.UpdateSkills(id, normalized);
+        var updated = await _repository.UpdateSkillsAsync(id, normalized);
         if (updated is null)
         {
             return NotFound();

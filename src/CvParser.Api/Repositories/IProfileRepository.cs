@@ -4,7 +4,7 @@ namespace CvParser.Api.Repositories;
 
 public interface IProfileRepository
 {
-    IReadOnlyList<EmployeeProfile> GetAll();
-    EmployeeProfile? GetById(Guid id);
-    EmployeeProfile? UpdateSkills(Guid id, IReadOnlyList<string> skills);
+    Task<IReadOnlyList<EmployeeProfile>> GetAllAsync();
+    Task<EmployeeProfile?> GetByIdAsync(Guid id);
+    Task<EmployeeProfile?> UpdateSkillsAsync(Guid id, IReadOnlyList<string> skills);
 }

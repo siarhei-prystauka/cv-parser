@@ -1,3 +1,4 @@
+using CvParser.Api.Models;
 using CvParser.Api.Models.Options;
 using CvParser.Api.Repositories;
 using Microsoft.Extensions.Options;
@@ -9,94 +10,54 @@ namespace CvParser.Api.Tests.Repositories;
 /// </summary>
 public sealed class InMemorySettingsRepositoryTests
 {
-    [Test]
-    public async Task GetSkillExtractionOptionsAsync_OnInitialization_ReturnsInitialValues()
+    private static InMemorySettingsRepository CreateRepository(bool llmFallbackOnly = false, string model = "llama-3.3-70b-versatile")
     {
-        var initialOptions = new SkillExtractionOptions { LlmFallbackOnly = true };
-        var groqOptions = new GroqOptions { ApiKey = "test-key" };
-        var repository = new InMemorySettingsRepository(
-            Options.Create(initialOptions),
-            Options.Create(groqOptions)
+        return new InMemorySettingsRepository(
+            Options.Create(new SkillExtractionOptions { LlmFallbackOnly = llmFallbackOnly }),
+            Options.Create(new GroqOptions { Model = model })
         );
+    }
 
-        var result = await repository.GetSkillExtractionOptionsAsync();
+    [Test]
+    public async Task GetAsync_OnInitialization_ReturnsInitialValues()
+    {
+        var repository = CreateRepository(llmFallbackOnly: true, model: "llama-3.1-8b-instant");
+
+        var result = await repository.GetAsync();
 
         Assert.That(result.LlmFallbackOnly, Is.True);
+        Assert.That(result.LlmModel, Is.EqualTo("llama-3.1-8b-instant"));
     }
 
     [Test]
-    public async Task GetGroqOptionsAsync_OnInitialization_ReturnsInitialValues()
+    public async Task UpdateAsync_WithNewValues_PersistsChanges()
     {
-        var skillOptions = new SkillExtractionOptions { LlmFallbackOnly = false };
-        var initialGroqOptions = new GroqOptions 
-        { 
-            ApiKey = "test-key",
-            Model = "test-model",
-            TimeoutSeconds = 60
-        };
-        var repository = new InMemorySettingsRepository(
-            Options.Create(skillOptions),
-            Options.Create(initialGroqOptions)
-        );
+        var repository = CreateRepository();
 
-        var result = await repository.GetGroqOptionsAsync();
+        await repository.UpdateAsync(new ApplicationSetting { LlmFallbackOnly = true, LlmModel = "llama-3.1-8b-instant" });
+        var result = await repository.GetAsync();
 
-        Assert.That(result.ApiKey, Is.EqualTo("test-key"));
-        Assert.That(result.Model, Is.EqualTo("test-model"));
-        Assert.That(result.TimeoutSeconds, Is.EqualTo(60));
-    }
-
-    [Test]
-    public async Task UpdateSkillExtractionOptionsAsync_WithNewOptions_PersistsChanges()
-    {
-        var initialOptions = new SkillExtractionOptions { LlmFallbackOnly = false };
-        var groqOptions = new GroqOptions { ApiKey = "test-key" };
-        var repository = new InMemorySettingsRepository(
-            Options.Create(initialOptions),
-            Options.Create(groqOptions)
-        );
-
-        var newOptions = new SkillExtractionOptions { LlmFallbackOnly = true };
-        await repository.UpdateSkillExtractionOptionsAsync(newOptions);
-
-        var result = await repository.GetSkillExtractionOptionsAsync();
         Assert.That(result.LlmFallbackOnly, Is.True);
+        Assert.That(result.LlmModel, Is.EqualTo("llama-3.1-8b-instant"));
     }
 
     [Test]
-    public async Task UpdateGroqOptionsAsync_WithNewOptions_PersistsChanges()
+    public async Task UpdateAsync_CalledTwice_OverwritesPreviousValues()
     {
-        var skillOptions = new SkillExtractionOptions { LlmFallbackOnly = false };
-        var initialGroqOptions = new GroqOptions { ApiKey = "old-key" };
-        var repository = new InMemorySettingsRepository(
-            Options.Create(skillOptions),
-            Options.Create(initialGroqOptions)
-        );
+        var repository = CreateRepository();
 
-        var newGroqOptions = new GroqOptions 
-        { 
-            ApiKey = "new-key",
-            Model = "new-model",
-            TimeoutSeconds = 90
-        };
-        await repository.UpdateGroqOptionsAsync(newGroqOptions);
+        await repository.UpdateAsync(new ApplicationSetting { LlmFallbackOnly = false, LlmModel = "model-1" });
+        await repository.UpdateAsync(new ApplicationSetting { LlmFallbackOnly = true, LlmModel = "model-2" });
+        var result = await repository.GetAsync();
 
-        var result = await repository.GetGroqOptionsAsync();
-        Assert.That(result.ApiKey, Is.EqualTo("new-key"));
-        Assert.That(result.Model, Is.EqualTo("new-model"));
-        Assert.That(result.TimeoutSeconds, Is.EqualTo(90));
+        Assert.That(result.LlmFallbackOnly, Is.True);
+        Assert.That(result.LlmModel, Is.EqualTo("model-2"));
     }
 
     [Test]
     public async Task ConcurrentUpdates_WithMultipleThreads_MaintainsDataConsistency()
     {
-        var skillOptions = new SkillExtractionOptions { LlmFallbackOnly = false };
-        var groqOptions = new GroqOptions { ApiKey = "initial-key" };
-        var repository = new InMemorySettingsRepository(
-            Options.Create(skillOptions),
-            Options.Create(groqOptions)
-        );
-
+        var repository = CreateRepository();
         const int threadCount = 50;
         var tasks = new Task[threadCount];
 
@@ -105,29 +66,19 @@ public sealed class InMemorySettingsRepositoryTests
             var index = i;
             tasks[i] = Task.Run(async () =>
             {
-                if (index % 2 == 0)
+                await repository.UpdateAsync(new ApplicationSetting
                 {
-                    var opts = new SkillExtractionOptions { LlmFallbackOnly = index % 4 == 0 };
-                    await repository.UpdateSkillExtractionOptionsAsync(opts);
-                }
-                else
-                {
-                    var opts = new GroqOptions { ApiKey = $"key-{index}" };
-                    await repository.UpdateGroqOptionsAsync(opts);
-                }
-
-                await repository.GetSkillExtractionOptionsAsync();
-                await repository.GetGroqOptionsAsync();
+                    LlmFallbackOnly = index % 2 == 0,
+                    LlmModel = $"model-{index}"
+                });
+                await repository.GetAsync();
             });
         }
 
         await Task.WhenAll(tasks);
 
-        var finalSkillOptions = await repository.GetSkillExtractionOptionsAsync();
-        var finalGroqOptions = await repository.GetGroqOptionsAsync();
-
-        Assert.That(finalSkillOptions, Is.Not.Null);
-        Assert.That(finalGroqOptions, Is.Not.Null);
-        Assert.That(finalGroqOptions.ApiKey, Does.StartWith("key-"));
+        var finalSetting = await repository.GetAsync();
+        Assert.That(finalSetting, Is.Not.Null);
+        Assert.That(finalSetting.LlmModel, Does.StartWith("model-"));
     }
 }
